@@ -1,63 +1,417 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>PACE Board — Sign in</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700;1,900&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-<style>
-*{box-sizing:border-box;margin:0;padding:0;}
-html,body{height:100%;}
-body{background:#F4F5F7;font-family:'DM Sans',sans-serif;color:#1F2937;-webkit-font-smoothing:antialiased;}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PACE Board — Sign in</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600;1,700&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
-.topbar{position:fixed;top:0;left:0;right:0;height:52px;background:#FFFFFF;border-bottom:1px solid #E5E7EB;display:flex;align-items:center;padding:0 24px;z-index:100;}
-.wordmark{font-family:'Playfair Display',serif;font-style:italic;font-weight:700;font-size:16px;color:#1B2A4A;letter-spacing:-0.01em;}
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-.main{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:80px 24px 40px;}
-.card{background:#FFFFFF;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,0.06);padding:40px 36px;width:100%;max-width:400px;}
+    :root {
+      --bg-app: #071113;
+      --surface-base: #0E1C1F;
+      --surface-elevated: #14282C;
+      --surface-active: #183438;
+      --border-subtle: rgba(255,255,255,0.06);
+      --border-active: #4FA69A;
+      --text-primary: #F4F7F5;
+      --text-secondary: #AAB8B6;
+      --text-muted: #687A78;
+      --water-primary: #4FA69A;
+      --water-soft: rgba(79,166,154,0.12);
+      --water-light: #8FD3C8;
+      --fire-primary: #F2A65A;
+      --fire-hover: #F6B86F;
+      --fire-pressed: #D98E3F;
+      --earth-primary: #8A7A5E;
+      --earth-soft: rgba(138,122,94,0.12);
+      --air-primary: #CBD5D1;
+      --air-soft: rgba(203,213,209,0.08);
+      --success: #6DBE8B;
+      --info: #6FAFD8;
+      --warning: #E6B450;
+      --danger: #D95D5D;
+      --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+      --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 20px;
+    }
 
-.eyebrow{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:#6B7280;margin-bottom:14px;}
-.heading{font-family:'Playfair Display',serif;font-style:italic;font-weight:900;font-size:28px;color:#1B2A4A;line-height:1.15;margin-bottom:8px;}
-.subtext{font-size:14px;color:#6B7280;line-height:1.55;margin-bottom:28px;}
+    html, body { height: 100%; }
 
-.field{display:flex;flex-direction:column;gap:0;margin-bottom:12px;}
-.field input{height:44px;border:1px solid #E5E7EB;border-radius:8px;padding:0 16px;font-family:'DM Sans',sans-serif;font-size:14px;color:#1F2937;background:#FFFFFF;outline:none;transition:border-color 0.15s;}
-.field input:focus{border-color:#0EA5A0;}
-.field input::placeholder{color:#9CA3AF;}
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg-app);
+      color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+      overflow: hidden;
+      position: relative;
+    }
 
-.cta{display:block;width:100%;height:44px;background:#1B2A4A;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;letter-spacing:0.05em;border:none;border-radius:8px;cursor:pointer;text-decoration:none;display:flex;align-items:center;justify-content:center;margin-top:4px;transition:background 0.15s;}
-.cta:hover{background:#243760;}
+    /* Grain overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      pointer-events: none;
+      opacity: 0.028;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='128' height='128' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      background-size: 128px;
+    }
 
-.hint{font-size:12px;color:#9CA3AF;text-align:center;margin-top:16px;line-height:1.5;}
+    /* Water nature background */
+    .bg-scene {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, #071113 0%, #0a2028 40%, #0d3040 70%, #071113 100%);
+      z-index: 0;
+    }
 
-.footer-link{margin-top:28px;text-align:center;padding-top:20px;border-top:1px solid #F3F4F6;}
-.footer-link a{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:#9CA3AF;text-decoration:none;transition:color 0.15s;}
-.footer-link a:hover{color:#6B7280;}
-</style>
+    /* Ambient glow */
+    .bg-glow {
+      position: fixed;
+      top: -20%;
+      right: -10%;
+      width: 70%;
+      height: 80%;
+      background: radial-gradient(circle, rgba(79,166,154,0.07) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .bg-glow-bottom {
+      position: fixed;
+      bottom: -20%;
+      left: -10%;
+      width: 60%;
+      height: 60%;
+      background: radial-gradient(circle, rgba(79,166,154,0.04) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Ocean pattern overlay */
+    .bg-pattern {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      opacity: 0.12;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 6vw;
+    }
+
+    /* Topbar */
+    .topbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 52px;
+      background: rgba(7,17,19,0.8);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 200;
+    }
+
+    .wordmark {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+    }
+    .wordmark span { color: var(--water-primary); }
+
+    .topbar-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      background: var(--water-soft);
+      border: 1px solid rgba(79,166,154,0.2);
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+
+    /* Main layout */
+    .main {
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 24px 40px;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Login card */
+    .card {
+      background: var(--surface-base);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.06),
+        0 16px 40px rgba(7,17,19,0.6);
+      padding: 40px 36px;
+      width: 100%;
+      max-width: 400px;
+      position: relative;
+      animation: cardIn 0.6s cubic-bezier(0.23, 1, 0.32, 1) both;
+    }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(18px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Subtle top accent line */
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 24px; right: 24px;
+      height: 1px;
+      background: linear-gradient(to right, transparent, rgba(79,166,154,0.4), transparent);
+    }
+
+    .eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--water-primary);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .eyebrow::before {
+      content: '';
+      width: 16px;
+      height: 1px;
+      background: var(--water-primary);
+      display: block;
+    }
+
+    .heading {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-weight: 700;
+      font-size: 28px;
+      color: var(--text-primary);
+      line-height: 1.15;
+      margin-bottom: 8px;
+    }
+
+    .subtext {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+
+    /* Email field */
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .field-label {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .field input {
+      height: 44px;
+      background: var(--surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 0 16px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      color: var(--text-primary);
+      outline: none;
+      transition: border-color 200ms var(--ease-out), box-shadow 200ms var(--ease-out);
+      width: 100%;
+    }
+    .field input::placeholder { color: var(--text-muted); }
+    .field input:focus {
+      border-color: var(--water-primary);
+      box-shadow: 0 0 0 3px rgba(79,166,154,0.1);
+    }
+
+    /* CTA button */
+    .cta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      height: 46px;
+      background: var(--fire-primary);
+      color: #0C0804;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      text-decoration: none;
+      margin-top: 8px;
+      box-shadow: 0 0 0 1px rgba(242,166,90,0.3), 0 8px 24px rgba(242,166,90,0.16), inset 0 1px 0 rgba(255,255,255,0.15);
+      transition: background 160ms var(--ease-out), transform 160ms var(--ease-out);
+    }
+    .cta:hover { background: var(--fire-hover); }
+    .cta:active { background: var(--fire-pressed); transform: scale(0.97); }
+
+    .hint {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 16px;
+      line-height: 1.55;
+    }
+
+    /* Divider */
+    .divider {
+      height: 1px;
+      background: var(--border-subtle);
+      margin: 24px 0;
+    }
+
+    .footer-link {
+      text-align: center;
+    }
+    .footer-link a {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 160ms;
+    }
+    .footer-link a:hover { color: var(--water-primary); }
+
+    /* Pilot badge on card */
+    .pilot-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(79,166,154,0.08);
+      border: 1px solid rgba(79,166,154,0.18);
+      border-radius: 6px;
+      padding: 4px 10px;
+      margin-bottom: 24px;
+    }
+    .pilot-badge__dot {
+      width: 5px; height: 5px;
+      background: var(--water-primary);
+      border-radius: 50%;
+      animation: pulse-dot 2.4s ease infinite;
+    }
+    .pilot-badge__text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--water-primary);
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.4; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .card, .pilot-badge__dot { animation: none; }
+    }
+  </style>
 </head>
 <body>
 
-<div class="topbar">
-  <span class="wordmark">PACE Board</span>
+<!-- Background -->
+<div class="bg-scene" aria-hidden="true"></div>
+<div class="bg-glow" aria-hidden="true"></div>
+<div class="bg-glow-bottom" aria-hidden="true"></div>
+
+<!-- Ocean pattern -->
+<div class="bg-pattern" aria-hidden="true">
+  <svg width="520" height="520" viewBox="0 0 520 520" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="260" cy="260" r="220" stroke="rgba(79,166,154,1)" stroke-width="1"/>
+    <circle cx="260" cy="260" r="180" stroke="rgba(79,166,154,1)" stroke-width="0.8"/>
+    <circle cx="260" cy="260" r="140" stroke="rgba(79,166,154,0.9)" stroke-width="0.8"/>
+    <circle cx="260" cy="260" r="100" stroke="rgba(79,166,154,1)" stroke-width="0.7"/>
+    <circle cx="260" cy="260" r="60" stroke="rgba(79,166,154,1)" stroke-width="0.7"/>
+    <circle cx="260" cy="260" r="24" fill="rgba(79,166,154,0.6)"/>
+    <path d="M40 260 Q130 180 220 260 Q310 340 400 260 Q470 200 520 230" stroke="rgba(79,166,154,1)" stroke-width="1.2" fill="none"/>
+    <path d="M40 300 Q130 220 220 300 Q310 380 400 300 Q470 240 520 270" stroke="rgba(79,166,154,0.8)" stroke-width="0.9" fill="none"/>
+    <path d="M40 220 Q130 140 220 220 Q310 300 400 220 Q470 160 520 190" stroke="rgba(79,166,154,0.6)" stroke-width="0.7" fill="none"/>
+  </svg>
 </div>
 
+<!-- Topbar -->
+<div class="topbar">
+  <span class="wordmark">PACE <span>Board</span></span>
+  <span class="topbar-tag">Pilot 2026</span>
+</div>
+
+<!-- Login Form -->
 <div class="main">
   <div class="card">
-    <div class="eyebrow">Pilot Program</div>
+
+    <div class="pilot-badge">
+      <div class="pilot-badge__dot" aria-hidden="true"></div>
+      <span class="pilot-badge__text">Pilot Program</span>
+    </div>
+
+    <div class="eyebrow">Access</div>
     <div class="heading">Welcome back.</div>
-    <div class="subtext">You're on the pilot list. Enter your email to continue.</div>
+    <div class="subtext">You&rsquo;re on the pilot list. Enter your email to continue.</div>
 
     <div class="field">
-      <input type="email" value="dora@cozinhadadora.com" placeholder="your@email.com"/>
+      <label class="field-label" for="email-input">Email address</label>
+      <input
+        id="email-input"
+        type="email"
+        value="dora@cozinhadadora.com"
+        placeholder="your@email.com"
+        autocomplete="email"
+      />
     </div>
 
-    <a class="cta" href="onboarding.html">Continue →</a>
+    <a class="cta" href="onboarding.html">
+      Continue
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
 
-    <div class="hint">First time? You're already on the list — just enter your email.</div>
+    <p class="hint">First time? You&rsquo;re already on the list &mdash; just enter your email.</p>
+
+    <div class="divider"></div>
 
     <div class="footer-link">
-      <a href="https://paceagile.com" target="_blank">Not on the list? paceagile.com</a>
+      <a href="https://paceagile.com" target="_blank" rel="noopener">Not on the list? paceagile.com</a>
     </div>
+
   </div>
 </div>
 

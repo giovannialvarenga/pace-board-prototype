@@ -3,137 +3,436 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <title>Meu negócio — Cozinha da Dora</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600;1,700&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
+:root {
+  --bg-app: #071113;
+  --surface-base: #0E1C1F;
+  --surface-elevated: #14282C;
+  --surface-active: #183438;
+  --border-subtle: rgba(255,255,255,0.06);
+  --border-active: #4FA69A;
+  --text-primary: #F4F7F5;
+  --text-secondary: #AAB8B6;
+  --text-muted: #687A78;
+  --water-primary: #4FA69A;
+  --water-soft: rgba(79,166,154,0.12);
+  --water-light: #8FD3C8;
+  --fire-primary: #F2A65A;
+  --fire-hover: #F6B86F;
+  --fire-pressed: #D98E3F;
+  --earth-primary: #8A7A5E;
+  --earth-soft: rgba(138,122,94,0.12);
+  --air-primary: #CBD5D1;
+  --air-soft: rgba(203,213,209,0.08);
+  --success: #6DBE8B;
+  --info: #6FAFD8;
+  --warning: #E6B450;
+  --danger: #D95D5D;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+}
+
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:#F4F5F7;font-family:'DM Sans',sans-serif;color:#1F2937;-webkit-font-smoothing:antialiased;}
 
-.top-nav{
-  position:fixed;top:0;left:0;right:0;height:52px;
-  background:white;border-bottom:1px solid #E5E7EB;
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 24px;z-index:100;
-}
-.nav-back{
-  font-family:'JetBrains Mono',monospace;font-size:9px;color:#6B7280;
-  text-decoration:none;letter-spacing:0.04em;
-}
-.nav-back:hover{color:#374151;}
-.nav-center{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:#1F2937;}
-.nav-right{font-family:'JetBrains Mono',monospace;font-size:9px;color:#9CA3AF;letter-spacing:0.04em;}
-
-.content{
-  max-width:680px;margin:0 auto;
-  padding:32px 24px;
-  padding-top:calc(52px + 32px);
+body {
+  background: var(--bg-app);
+  font-family: 'DM Sans', sans-serif;
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
 }
 
-.page-heading{margin-bottom:24px;}
-.biz-name{
-  font-family:'Playfair Display',serif;font-style:italic;font-weight:900;
-  font-size:22px;color:#1B2A4A;line-height:1.2;
-}
-.biz-subtitle{
-  font-family:'DM Sans',sans-serif;font-size:14px;color:#6B7280;
-  margin-top:4px;
-}
-
-.session-list{display:flex;flex-direction:column;gap:12px;}
-
-.session-card{
-  background:white;border-radius:12px;
-  box-shadow:0 1px 3px rgba(0,0,0,0.06);
-  padding:20px 24px;
+/* Grain overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  pointer-events: none;
+  opacity: 0.028;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='128' height='128' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-size: 128px;
 }
 
-.session-row1{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-
-.session-badge{
-  font-family:'JetBrains Mono',monospace;font-size:9px;
-  background:#F3F4F6;color:#374151;
-  padding:3px 8px;border-radius:4px;
-  letter-spacing:0.04em;
-}
-.session-date{
-  font-family:'DM Sans',sans-serif;font-size:12px;color:#6B7280;
-}
-.status-pill{
-  font-family:'JetBrains Mono',monospace;font-size:8px;
-  background:#D1FAE5;color:#065F46;
-  padding:3px 8px;border-radius:10px;
-  letter-spacing:0.06em;text-transform:uppercase;
+/* Ambient Earth glow */
+.ambient-glow {
+  position: fixed;
+  top: -100px;
+  right: -150px;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(122,106,79,0.08) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
 }
 
-.session-count{
-  font-family:'DM Sans',sans-serif;font-size:13px;color:#374151;
-  margin-top:8px;
+/* TOP NAV */
+.top-nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 52px;
+  background: rgba(7,17,19,0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  z-index: 100;
 }
 
-.session-tags{
-  display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;
+.nav-back {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--text-muted);
+  text-decoration: none;
+  letter-spacing: 0.08em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 160ms var(--ease-out);
 }
-.tag{
-  font-family:'JetBrains Mono',monospace;font-size:8px;color:#9CA3AF;
-  letter-spacing:0.03em;
-}
-.tag+.tag::before{content:'·';margin-right:6px;}
+.nav-back:hover { color: var(--water-primary); }
+.nav-back svg { width: 14px; height: 14px; stroke: currentColor; }
 
-.session-link{
-  display:block;margin-top:12px;
-  font-family:'DM Sans',sans-serif;font-size:13px;
-  font-weight:500;color:#0EA5A0;text-decoration:none;
-  transition:opacity 0.15s;
+.nav-center {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }
-.session-link:hover{opacity:0.75;}
 
-.session-card.empty{
-  background:#FAFAFA;
-  border:1px dashed #E5E7EB;
-  box-shadow:none;
+.nav-right {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
 }
-.empty-badge{
-  font-family:'JetBrains Mono',monospace;font-size:9px;color:#D1D5DB;
-  letter-spacing:0.04em;
-}
-.empty-status{
-  font-family:'DM Sans',sans-serif;font-size:12px;color:#D1D5DB;
-  margin-left:4px;
-}
-.empty-message{
-  font-family:'DM Sans',sans-serif;font-size:13px;color:#9CA3AF;
-  margin-top:8px;
-}
-.empty-link{
-  display:block;margin-top:8px;
-  font-family:'DM Sans',sans-serif;font-size:13px;
-  font-weight:500;color:#F59E0B;text-decoration:none;
-  transition:opacity 0.15s;
-}
-.empty-link:hover{opacity:0.75;}
 
-@media(max-width:420px){
-  .session-card{padding:16px 16px;}
+/* CONTENT */
+.content {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 32px 24px 80px;
+  padding-top: calc(52px + 40px);
+  position: relative;
+  z-index: 1;
+}
+
+/* PAGE HEADING */
+.page-heading {
+  margin-bottom: 32px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  animation: revealUp 480ms var(--ease-out) both;
+}
+
+.biz-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: rgba(79,166,154,0.15);
+  border: 1px solid rgba(79,166,154,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-weight: 700;
+  font-size: 20px;
+  color: var(--water-primary);
+  flex-shrink: 0;
+}
+
+.biz-name {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-weight: 700;
+  font-size: 22px;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.biz-subtitle {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+
+/* SESSION LIST */
+.session-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* SESSION CARD */
+.session-card {
+  background: var(--surface-base);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 22px 24px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 1px 3px rgba(7,17,19,0.3);
+  transition: border-color 240ms var(--ease-out), box-shadow 240ms var(--ease-out);
+  animation: revealUp 480ms var(--ease-out) both;
+}
+.session-card:nth-child(1) { animation-delay: 80ms; }
+.session-card:nth-child(2) { animation-delay: 140ms; }
+.session-card:nth-child(3) { animation-delay: 200ms; }
+.session-card:hover:not(.empty) {
+  border-color: rgba(79,166,154,0.2);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 8px 24px rgba(7,17,19,0.4);
+}
+
+/* Row 1: badge + date + status */
+.session-row1 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.session-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  background: var(--surface-active);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+  padding: 3px 9px;
+  border-radius: 6px;
+  letter-spacing: 0.06em;
+}
+
+.session-date {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.status-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  background: rgba(109,190,139,0.1);
+  color: var(--success);
+  border: 1px solid rgba(109,190,139,0.2);
+  padding: 3px 9px;
+  border-radius: 6px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.status-pill::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--success);
+  opacity: 0.8;
+}
+
+/* Doc count */
+.session-count {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+}
+
+/* Tags */
+.session-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.tag-water {
+  background: rgba(79,166,154,0.1);
+  color: var(--water-primary);
+  border: 1px solid rgba(79,166,154,0.2);
+  border-radius: 6px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Session link */
+.session-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--water-primary);
+  text-decoration: none;
+  transition: color 160ms var(--ease-out);
+}
+.session-link:hover { color: var(--water-light); }
+.session-link svg { width: 14px; height: 14px; stroke: currentColor; }
+
+/* EMPTY CARD */
+.session-card.empty {
+  background: rgba(255,255,255,0.01);
+  border: 1px dashed rgba(255,255,255,0.1);
+  box-shadow: none;
+}
+
+.empty-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  opacity: 0.5;
+}
+
+.empty-status {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  color: var(--text-muted);
+  opacity: 0.5;
+  margin-left: 4px;
+}
+
+.empty-message {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  opacity: 0.7;
+}
+
+/* Empty CTA — Fire */
+.empty-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fire-primary);
+  text-decoration: none;
+  transition: color 160ms var(--ease-out);
+}
+.empty-link:hover { color: var(--fire-hover); }
+.empty-link svg { width: 14px; height: 14px; stroke: currentColor; }
+
+/* Progress Bar — Day counter */
+.progress-section {
+  margin-bottom: 28px;
+  background: var(--surface-base);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 1px 3px rgba(7,17,19,0.3);
+  animation: revealUp 480ms var(--ease-out) 40ms both;
+}
+
+.progress-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.progress-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.progress-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--water-primary);
+  letter-spacing: 0.06em;
+}
+
+.progress-track {
+  background: rgba(255,255,255,0.06);
+  border-radius: 99px;
+  height: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--water-primary), var(--water-light));
+  animation: fillProgress 900ms cubic-bezier(0.23, 1, 0.32, 1) 400ms both;
+  width: 50%; /* Day 7 of 14 */
+}
+
+@keyframes fillProgress { from { width: 0; } }
+
+/* ANIMATIONS */
+@keyframes revealUp {
+  from { opacity: 0; transform: translateY(14px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media(max-width: 420px) {
+  .session-card { padding: 16px; }
+  .content { padding-left: 16px; padding-right: 16px; }
 }
 </style>
 </head>
 <body>
 
+<div class="ambient-glow"></div>
+
 <nav class="top-nav">
-  <a class="nav-back" href="living-board.html">← Back to board</a>
+  <a class="nav-back" href="living-board.html">
+    <svg viewBox="0 0 16 16" fill="none" stroke-width="1.5" stroke-linecap="round"><polyline points="10,3 5,8 10,13"/></svg>
+    Back to board
+  </a>
   <span class="nav-center">Meu negócio</span>
   <span class="nav-right">2 sessions</span>
 </nav>
 
 <div class="content">
 
+  <!-- BUSINESS HEADING -->
   <div class="page-heading">
-    <div class="biz-name">Cozinha da Dora</div>
-    <div class="biz-subtitle">All your sessions and documents.</div>
+    <div class="biz-avatar">D</div>
+    <div>
+      <div class="biz-name">Cozinha da Dora</div>
+      <div class="biz-subtitle">All your sessions and documents.</div>
+    </div>
   </div>
 
+  <!-- PROGRESS BAR — Day 7 of 14 -->
+  <div class="progress-section">
+    <div class="progress-header">
+      <span class="progress-label">Program progress</span>
+      <span class="progress-value">Day 7 of 14 &nbsp;·&nbsp; Session 1 complete</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill"></div>
+    </div>
+  </div>
+
+  <!-- SESSION LIST -->
   <div class="session-list">
 
+    <!-- SESSION 2 — Complete -->
     <div class="session-card">
       <div class="session-row1">
         <span class="session-badge">Session 2</span>
@@ -142,15 +441,19 @@ body{background:#F4F5F7;font-family:'DM Sans',sans-serif;color:#1F2937;-webkit-f
       </div>
       <div class="session-count">5 documents generated</div>
       <div class="session-tags">
-        <span class="tag">Problem Analysis</span>
-        <span class="tag">Business Map</span>
-        <span class="tag">Strategic Stance</span>
-        <span class="tag">Action Plan</span>
-        <span class="tag">AI Prompts</span>
+        <span class="tag-water">Problem Analysis</span>
+        <span class="tag-water">Business Map</span>
+        <span class="tag-water">Strategic Stance</span>
+        <span class="tag-water">Action Plan</span>
+        <span class="tag-water">AI Prompts</span>
       </div>
-      <a class="session-link" href="artifacts.html">View documents →</a>
+      <a class="session-link" href="artifacts.html">
+        View documents
+        <svg viewBox="0 0 16 16" fill="none" stroke-width="1.5" stroke-linecap="round"><polyline points="6,3 11,8 6,13"/></svg>
+      </a>
     </div>
 
+    <!-- SESSION 1 — Complete -->
     <div class="session-card">
       <div class="session-row1">
         <span class="session-badge">Session 1</span>
@@ -159,22 +462,29 @@ body{background:#F4F5F7;font-family:'DM Sans',sans-serif;color:#1F2937;-webkit-f
       </div>
       <div class="session-count">5 documents generated</div>
       <div class="session-tags">
-        <span class="tag">Problem Analysis</span>
-        <span class="tag">Business Map</span>
-        <span class="tag">Strategic Stance</span>
-        <span class="tag">Action Plan</span>
-        <span class="tag">AI Prompts</span>
+        <span class="tag-water">Problem Analysis</span>
+        <span class="tag-water">Business Map</span>
+        <span class="tag-water">Strategic Stance</span>
+        <span class="tag-water">Action Plan</span>
+        <span class="tag-water">AI Prompts</span>
       </div>
-      <a class="session-link" href="artifacts.html">View documents →</a>
+      <a class="session-link" href="artifacts.html">
+        View documents
+        <svg viewBox="0 0 16 16" fill="none" stroke-width="1.5" stroke-linecap="round"><polyline points="6,3 11,8 6,13"/></svg>
+      </a>
     </div>
 
+    <!-- SESSION 3 — Empty -->
     <div class="session-card empty">
       <div class="session-row1">
         <span class="empty-badge">Session 3</span>
         <span class="empty-status">Not started</span>
       </div>
       <div class="empty-message">Ready when you are.</div>
-      <a class="empty-link" href="chat.html">Start session 3 →</a>
+      <a class="empty-link" href="chat.html">
+        Start session 3
+        <svg viewBox="0 0 16 16" fill="none" stroke-width="1.5" stroke-linecap="round"><polyline points="6,3 11,8 6,13"/></svg>
+      </a>
     </div>
 
   </div>

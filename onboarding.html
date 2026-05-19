@@ -1,89 +1,619 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>PACE Board — Set up your board</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700;1,900&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-<style>
-*{box-sizing:border-box;margin:0;padding:0;}
-html,body{height:100%;}
-body{background:#F4F5F7;font-family:'DM Sans',sans-serif;color:#1F2937;-webkit-font-smoothing:antialiased;}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PACE Board — Set up your board</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600;1,700&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
-.topbar{position:fixed;top:0;left:0;right:0;height:52px;background:#FFFFFF;border-bottom:1px solid #E5E7EB;display:flex;align-items:center;justify-content:space-between;padding:0 24px;z-index:100;}
-.wordmark{font-family:'Playfair Display',serif;font-style:italic;font-weight:700;font-size:16px;color:#1B2A4A;letter-spacing:-0.01em;}
-.step-counter{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:#9CA3AF;}
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-.main{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:88px 24px 48px;}
-.card{background:#FFFFFF;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,0.06);padding:40px 36px;width:100%;max-width:480px;}
+    :root {
+      --bg-app: #071113;
+      --surface-base: #0E1C1F;
+      --surface-elevated: #14282C;
+      --surface-active: #183438;
+      --border-subtle: rgba(255,255,255,0.06);
+      --border-active: #4FA69A;
+      --text-primary: #F4F7F5;
+      --text-secondary: #AAB8B6;
+      --text-muted: #687A78;
+      --water-primary: #4FA69A;
+      --water-soft: rgba(79,166,154,0.12);
+      --water-light: #8FD3C8;
+      --fire-primary: #F2A65A;
+      --fire-hover: #F6B86F;
+      --fire-pressed: #D98E3F;
+      --earth-primary: #8A7A5E;
+      --earth-soft: rgba(138,122,94,0.12);
+      --air-primary: #CBD5D1;
+      --air-soft: rgba(203,213,209,0.08);
+      --success: #6DBE8B;
+      --info: #6FAFD8;
+      --warning: #E6B450;
+      --danger: #D95D5D;
+      --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+      --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 20px;
+    }
 
-.progress-track{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:36px;}
-.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;transition:background 0.2s;}
-.dot.active{background:#0EA5A0;}
-.dot.inactive{background:#E5E7EB;border:1.5px solid #D1D5DB;}
-.progress-line{width:48px;height:2px;background:#E5E7EB;margin:0 6px;position:relative;overflow:hidden;}
-.progress-line-fill{position:absolute;top:0;left:0;height:100%;background:#0EA5A0;width:0;transition:width 0.3s;}
+    html, body { height: 100%; }
 
-.heading{font-family:'Playfair Display',serif;font-style:italic;font-weight:900;font-size:24px;color:#1B2A4A;line-height:1.2;margin-bottom:6px;}
-.subtext{font-size:13px;color:#6B7280;line-height:1.55;margin-bottom:28px;}
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg-app);
+      color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
 
-.field{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;}
-.field label{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:#374151;}
-.field input,.field select,.field textarea{border:1px solid #E5E7EB;border-radius:8px;padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:14px;color:#1F2937;background:#FFFFFF;outline:none;transition:border-color 0.15s;width:100%;}
-.field input:focus,.field select:focus,.field textarea:focus{border-color:#0EA5A0;}
-.field input{height:44px;}
-.field select{height:44px;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239CA3AF' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;cursor:pointer;}
-.field textarea{resize:none;line-height:1.6;padding:12px 14px;}
+    /* Grain overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      pointer-events: none;
+      opacity: 0.028;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='128' height='128' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      background-size: 128px;
+    }
 
-.cta-navy{display:flex;align-items:center;justify-content:center;width:100%;height:44px;background:#1B2A4A;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;letter-spacing:0.05em;border:none;border-radius:8px;cursor:pointer;text-decoration:none;transition:background 0.15s;}
-.cta-navy:hover{background:#243760;}
+    /* Earth nature background */
+    .bg-scene {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, #080e0a 0%, #0e1a10 40%, #142018 70%, #080e0a 100%);
+      z-index: 0;
+    }
 
-.cta-amber{display:flex;align-items:center;justify-content:center;width:100%;height:44px;background:#F59E0B;color:#000000;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;letter-spacing:0.05em;border:none;border-radius:8px;cursor:pointer;transition:background 0.15s;}
-.cta-amber:hover{background:#D97706;}
+    /* Earth ambient glow */
+    .bg-glow {
+      position: fixed;
+      top: -10%;
+      right: -5%;
+      width: 55%;
+      height: 65%;
+      background: radial-gradient(circle, rgba(138,122,94,0.06) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .bg-glow-bottom {
+      position: fixed;
+      bottom: -15%;
+      left: -5%;
+      width: 50%;
+      height: 55%;
+      background: radial-gradient(circle, rgba(79,166,154,0.04) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
 
-.back-link{font-size:13px;color:#9CA3AF;cursor:pointer;display:inline-flex;align-items:center;margin-bottom:20px;transition:color 0.15s;}
-.back-link:hover{color:#6B7280;}
+    /* Earth pattern overlay */
+    .bg-pattern {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      opacity: 0.1;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 5vw;
+    }
 
-.overlay{display:none;position:fixed;inset:0;background:rgba(244,245,247,0.95);z-index:200;flex-direction:column;align-items:center;justify-content:center;gap:20px;}
-.overlay.visible{display:flex;}
-.overlay-text{font-family:'Playfair Display',serif;font-style:italic;font-size:20px;color:#1B2A4A;}
-.spinner{width:20px;height:20px;border:2.5px solid #D1D5DB;border-top-color:#0EA5A0;border-radius:50%;animation:spin 0.7s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg);}}
-</style>
+    /* Topbar */
+    .topbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 52px;
+      background: rgba(7,17,19,0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 200;
+    }
+
+    .wordmark {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+    }
+    .wordmark span { color: var(--water-primary); }
+
+    .step-counter {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    /* Main layout */
+    .main {
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 88px 24px 48px;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Onboarding card */
+    .card {
+      background: var(--surface-base);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.06),
+        0 16px 40px rgba(7,17,19,0.6);
+      padding: 40px 36px;
+      width: 100%;
+      max-width: 480px;
+      position: relative;
+      animation: cardIn 0.6s cubic-bezier(0.23, 1, 0.32, 1) both;
+    }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(18px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Top accent line — earth color */
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 24px; right: 24px;
+      height: 1px;
+      background: linear-gradient(to right, transparent, rgba(138,122,94,0.4), transparent);
+    }
+
+    /* ── Progress track ────────────────────────────────── */
+    .progress-track {
+      display: flex;
+      align-items: center;
+      margin-bottom: 32px;
+    }
+
+    .progress-step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .step-dot {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 240ms var(--ease-out);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+    }
+
+    .step-dot.active {
+      background: var(--water-soft);
+      border: 1px solid rgba(79,166,154,0.4);
+      color: var(--water-primary);
+    }
+
+    .step-dot.complete {
+      background: rgba(79,166,154,0.15);
+      border: 1px solid rgba(79,166,154,0.5);
+      color: var(--water-primary);
+    }
+
+    .step-dot.inactive {
+      background: var(--surface-elevated);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+    }
+
+    .step-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .step-label.active { color: var(--water-primary); }
+    .step-label.inactive { color: var(--text-muted); }
+
+    .progress-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border-subtle);
+      margin: 0 12px;
+      position: relative;
+      overflow: hidden;
+    }
+    .progress-line-fill {
+      position: absolute;
+      top: 0; left: 0;
+      height: 100%;
+      background: var(--water-primary);
+      width: 0;
+      transition: width 360ms var(--ease-out);
+    }
+
+    /* ── Form elements ─────────────────────────────────── */
+    .heading {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-weight: 700;
+      font-size: 24px;
+      color: var(--text-primary);
+      line-height: 1.2;
+      margin-bottom: 6px;
+    }
+
+    .subtext {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .field label {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      background: var(--surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      color: var(--text-primary);
+      outline: none;
+      transition: border-color 200ms var(--ease-out), box-shadow 200ms var(--ease-out);
+      width: 100%;
+    }
+
+    .field input::placeholder,
+    .field textarea::placeholder {
+      color: var(--text-muted);
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      border-color: var(--water-primary);
+      box-shadow: 0 0 0 3px rgba(79,166,154,0.1);
+    }
+
+    .field input { height: 44px; }
+
+    .field select {
+      height: 44px;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23687A78' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 36px;
+      cursor: pointer;
+    }
+
+    .field select option {
+      background: var(--surface-elevated);
+      color: var(--text-primary);
+    }
+
+    .field textarea {
+      resize: none;
+      line-height: 1.65;
+      padding: 12px 14px;
+    }
+
+    /* ── Buttons ──────────────────────────────────────── */
+    .btn-primary {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      height: 46px;
+      background: var(--fire-primary);
+      color: #0C0804;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: 0 0 0 1px rgba(242,166,90,0.3), 0 8px 24px rgba(242,166,90,0.16), inset 0 1px 0 rgba(255,255,255,0.15);
+      transition: background 160ms var(--ease-out), transform 160ms var(--ease-out);
+    }
+    .btn-primary:hover { background: var(--fire-hover); }
+    .btn-primary:active { background: var(--fire-pressed); transform: scale(0.97); }
+
+    .btn-secondary {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      height: 46px;
+      background: var(--water-soft);
+      border: 1px solid rgba(79,166,154,0.3);
+      color: var(--water-light);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 160ms var(--ease-out), transform 160ms var(--ease-out);
+    }
+    .btn-secondary:hover { background: rgba(79,166,154,0.18); }
+    .btn-secondary:active { transform: scale(0.97); }
+
+    /* ── Back link ─────────────────────────────────────── */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      color: var(--text-muted);
+      cursor: pointer;
+      margin-bottom: 20px;
+      transition: color 160ms;
+      background: none;
+      border: none;
+      padding: 0;
+    }
+    .back-link:hover { color: var(--text-secondary); }
+
+    /* ── Step panels ────────────────────────────────────── */
+    .step-panel {
+      animation: stepIn 0.36s var(--ease-out) both;
+    }
+    @keyframes stepIn {
+      from { opacity: 0; transform: translateX(12px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    .step-panel.step-back {
+      animation: stepBack 0.36s var(--ease-out) both;
+    }
+    @keyframes stepBack {
+      from { opacity: 0; transform: translateX(-12px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    /* ── Character count ─────────────────────────────────── */
+    .char-hint {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--text-muted);
+      text-align: right;
+      margin-top: -10px;
+      margin-bottom: 8px;
+    }
+
+    /* ── Loading overlay ─────────────────────────────────── */
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(7,17,19,0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 500;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+    }
+    .overlay.visible { display: flex; }
+
+    .overlay-card {
+      background: var(--surface-elevated);
+      border: 1px solid rgba(79,166,154,0.2);
+      border-radius: var(--radius-xl);
+      padding: 40px 48px;
+      text-align: center;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 24px 48px rgba(7,17,19,0.6);
+      max-width: 340px;
+      width: 100%;
+    }
+
+    .overlay-icon {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: var(--water-soft);
+      border: 1px solid rgba(79,166,154,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+    }
+
+    .overlay-text {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 20px;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .overlay-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* Spinner */
+    .spinner {
+      width: 20px; height: 20px;
+      border: 2px solid var(--border-subtle);
+      border-top-color: var(--water-primary);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    .spinner-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Progress dots animation */
+    .loading-dots {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      margin-top: 16px;
+    }
+    .loading-dots span {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--water-primary);
+      animation: dots 1.2s ease infinite;
+    }
+    .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes dots {
+      0%, 100% { opacity: 0.3; transform: scale(0.8); }
+      50% { opacity: 1; transform: scale(1.1); }
+    }
+
+    /* Earth tag */
+    .tag-earth {
+      background: rgba(122,106,79,0.12);
+      color: #A8946A;
+      border: 1px solid rgba(122,106,79,0.2);
+      border-radius: 6px;
+      padding: 3px 10px;
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      display: inline-block;
+      margin-bottom: 20px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .card, .step-panel { animation: none; }
+      .spinner { animation: none; border-top-color: var(--water-primary); }
+      .loading-dots span { animation: none; opacity: 1; }
+    }
+  </style>
 </head>
 <body>
 
+<!-- Background -->
+<div class="bg-scene" aria-hidden="true"></div>
+<div class="bg-glow" aria-hidden="true"></div>
+<div class="bg-glow-bottom" aria-hidden="true"></div>
+
+<!-- Forest/Earth pattern -->
+<div class="bg-pattern" aria-hidden="true">
+  <svg width="480" height="480" viewBox="0 0 480 480" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Concentric geometric earth shapes -->
+    <rect x="40" y="40" width="400" height="400" rx="12" stroke="rgba(138,122,94,1)" stroke-width="0.8"/>
+    <rect x="80" y="80" width="320" height="320" rx="10" stroke="rgba(138,122,94,0.9)" stroke-width="0.7"/>
+    <rect x="120" y="120" width="240" height="240" rx="8" stroke="rgba(138,122,94,0.8)" stroke-width="0.7"/>
+    <rect x="160" y="160" width="160" height="160" rx="6" stroke="rgba(138,122,94,0.9)" stroke-width="0.6"/>
+    <rect x="200" y="200" width="80" height="80" rx="4" stroke="rgba(138,122,94,1)" stroke-width="0.6"/>
+    <rect x="224" y="224" width="32" height="32" rx="3" fill="rgba(138,122,94,0.4)"/>
+    <!-- Grid lines -->
+    <line x1="240" y1="40" x2="240" y2="440" stroke="rgba(138,122,94,0.3)" stroke-width="0.5"/>
+    <line x1="40" y1="240" x2="440" y2="240" stroke="rgba(138,122,94,0.3)" stroke-width="0.5"/>
+    <line x1="40" y1="40" x2="440" y2="440" stroke="rgba(138,122,94,0.2)" stroke-width="0.4"/>
+    <line x1="440" y1="40" x2="40" y2="440" stroke="rgba(138,122,94,0.2)" stroke-width="0.4"/>
+  </svg>
+</div>
+
+<!-- Topbar -->
 <div class="topbar">
-  <span class="wordmark">PACE Board</span>
+  <span class="wordmark">PACE <span>Board</span></span>
   <span class="step-counter" id="step-label">Step 1 of 2</span>
 </div>
 
+<!-- Main -->
 <div class="main">
   <div class="card">
 
-    <div class="progress-track">
-      <div class="dot active" id="dot1"></div>
-      <div class="progress-line"><div class="progress-line-fill" id="line-fill"></div></div>
-      <div class="dot inactive" id="dot2"></div>
+    <!-- Progress track -->
+    <div class="progress-track" role="progressbar" aria-valuemin="1" aria-valuemax="2" aria-valuenow="1">
+      <div class="progress-step">
+        <div class="step-dot active" id="dot1" aria-label="Step 1: Business">1</div>
+        <span class="step-label active" id="label1">Business</span>
+      </div>
+      <div class="progress-line">
+        <div class="progress-line-fill" id="line-fill"></div>
+      </div>
+      <div class="progress-step">
+        <div class="step-dot inactive" id="dot2" aria-label="Step 2: Challenge">2</div>
+        <span class="step-label inactive" id="label2">Challenge</span>
+      </div>
     </div>
 
-    <div id="step1">
+    <!-- STEP 1 -->
+    <div id="step1" class="step-panel">
+      <span class="tag-earth">Foundation</span>
       <div class="heading">Tell us about your business.</div>
-      <div class="subtext">This is how we'll frame your board.</div>
+      <div class="subtext">This is how we&rsquo;ll frame your board.</div>
 
       <div class="field">
-        <label>Business name</label>
-        <input type="text" value="Cozinha da Dora"/>
+        <label for="business-name">Business name</label>
+        <input
+          id="business-name"
+          type="text"
+          value="Cozinha da Dora"
+          placeholder="Your business name"
+          autocomplete="organization"
+        />
       </div>
 
       <div class="field">
-        <label>What does your business do? (one sentence)</label>
-        <input type="text" value="I go to clients' homes and cook for them"/>
+        <label for="business-desc">What does your business do? (one sentence)</label>
+        <input
+          id="business-desc"
+          type="text"
+          value="I go to clients' homes and cook for them"
+          placeholder="One clear sentence"
+        />
       </div>
 
       <div class="field">
-        <label>Your role</label>
-        <select>
+        <label for="role-select">Your role</label>
+        <select id="role-select">
           <option value="founder" selected>Founder</option>
           <option value="ceo">CEO</option>
           <option value="coo">COO</option>
@@ -92,54 +622,161 @@ body{background:#F4F5F7;font-family:'DM Sans',sans-serif;color:#1F2937;-webkit-f
         </select>
       </div>
 
-      <button class="cta-navy" onclick="goToStep2()">Next →</button>
+      <button class="btn-secondary" onclick="goToStep2()">
+        Next step
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
     </div>
 
+    <!-- STEP 2 -->
     <div id="step2" style="display:none;">
-      <span class="back-link" onclick="goToStep1()">← Back</span>
-      <div class="heading">What's the main challenge you're working on?</div>
-      <div class="subtext">No need to have all the answers. Describe it as you'd tell a colleague.</div>
+      <div class="step-panel" id="step2-inner">
+        <button class="back-link" onclick="goToStep1()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Back
+        </button>
+        <span class="tag-earth">Challenge</span>
+        <div class="heading">What&rsquo;s the main challenge you&rsquo;re working on?</div>
+        <div class="subtext">No need to have all the answers. Describe it as you&rsquo;d tell a colleague.</div>
 
-      <div class="field" style="margin-bottom:20px;">
-        <textarea rows="6">I have happy clients who refer me, but I can't get customers who don't already know me. I've been posting on Instagram but it's not reaching new people.</textarea>
+        <div class="field" style="margin-bottom:8px;">
+          <label for="challenge-text">Describe your challenge</label>
+          <textarea
+            id="challenge-text"
+            rows="6"
+            maxlength="600"
+            oninput="updateCharCount(this)"
+          >I have happy clients who refer me, but I can't get customers who don't already know me. I've been posting on Instagram but it's not reaching new people.</textarea>
+        </div>
+        <div class="char-hint" id="char-count">181 / 600</div>
+
+        <button class="btn-primary" onclick="submitSetup()">
+          Set up my board
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
       </div>
-
-      <button class="cta-amber" onclick="submitSetup()">Set up my board →</button>
     </div>
 
   </div>
 </div>
 
-<div class="overlay" id="loading-overlay">
-  <div class="overlay-text">Setting up your board...</div>
-  <div class="spinner"></div>
+<!-- Loading overlay -->
+<div class="overlay" id="loading-overlay" role="status" aria-live="polite">
+  <div class="overlay-card">
+    <div class="overlay-icon" aria-hidden="true">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4FA69A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+        <path d="M2 17l10 5 10-5"/>
+        <path d="M2 12l10 5 10-5"/>
+      </svg>
+    </div>
+    <div class="overlay-text">Setting up your board&hellip;</div>
+    <div class="overlay-sub">Calibrating your session to Cozinha da Dora</div>
+    <div class="loading-dots" aria-hidden="true">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+  </div>
 </div>
 
 <script>
-function goToStep2(){
-  document.getElementById('step1').style.display='none';
-  document.getElementById('step2').style.display='block';
-  document.getElementById('step-label').textContent='Step 2 of 2';
-  document.getElementById('dot2').classList.remove('inactive');
-  document.getElementById('dot2').classList.add('active');
-  document.getElementById('line-fill').style.width='100%';
-}
+(function () {
+  'use strict';
 
-function goToStep1(){
-  document.getElementById('step2').style.display='none';
-  document.getElementById('step1').style.display='block';
-  document.getElementById('step-label').textContent='Step 1 of 2';
-  document.getElementById('dot2').classList.remove('active');
-  document.getElementById('dot2').classList.add('inactive');
-  document.getElementById('line-fill').style.width='0';
-}
+  /* Character counter */
+  window.updateCharCount = function(el) {
+    var count = el.value.length;
+    var max = parseInt(el.getAttribute('maxlength')) || 600;
+    var el2 = document.getElementById('char-count');
+    if (el2) el2.textContent = count + ' / ' + max;
+  };
 
-function submitSetup(){
-  document.getElementById('loading-overlay').classList.add('visible');
-  setTimeout(function(){
-    window.location.href='living-board.html';
-  },1800);
-}
+  /* Initialize char count on load */
+  var ta = document.getElementById('challenge-text');
+  if (ta) window.updateCharCount(ta);
+
+  /* Go to step 2 */
+  window.goToStep2 = function() {
+    document.getElementById('step1').style.display = 'none';
+    var step2 = document.getElementById('step2');
+    step2.style.display = 'block';
+    // Reset animation
+    var inner = document.getElementById('step2-inner');
+    if (inner) {
+      inner.classList.remove('step-back');
+      inner.classList.add('step-panel');
+    }
+
+    // Update progress
+    document.getElementById('step-label').textContent = 'Step 2 of 2';
+
+    var dot1 = document.getElementById('dot1');
+    dot1.classList.remove('active');
+    dot1.classList.add('complete');
+    dot1.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+
+    var dot2 = document.getElementById('dot2');
+    dot2.classList.remove('inactive');
+    dot2.classList.add('active');
+    dot2.textContent = '2';
+
+    document.getElementById('label1').className = 'step-label active';
+    document.getElementById('label2').className = 'step-label active';
+
+    document.getElementById('line-fill').style.width = '100%';
+
+    // Update aria
+    var pb = document.querySelector('[role="progressbar"]');
+    if (pb) pb.setAttribute('aria-valuenow', '2');
+  };
+
+  /* Go back to step 1 */
+  window.goToStep1 = function() {
+    var step2 = document.getElementById('step2');
+    var inner = document.getElementById('step2-inner');
+    if (inner) {
+      inner.classList.remove('step-panel');
+      inner.classList.add('step-back');
+    }
+
+    setTimeout(function() {
+      step2.style.display = 'none';
+      document.getElementById('step1').style.display = 'block';
+    }, 200);
+
+    // Update progress
+    document.getElementById('step-label').textContent = 'Step 1 of 2';
+
+    var dot1 = document.getElementById('dot1');
+    dot1.classList.remove('complete');
+    dot1.classList.add('active');
+    dot1.textContent = '1';
+
+    var dot2 = document.getElementById('dot2');
+    dot2.classList.remove('active');
+    dot2.classList.add('inactive');
+    dot2.textContent = '2';
+
+    document.getElementById('label1').className = 'step-label active';
+    document.getElementById('label2').className = 'step-label inactive';
+
+    document.getElementById('line-fill').style.width = '0';
+
+    var pb = document.querySelector('[role="progressbar"]');
+    if (pb) pb.setAttribute('aria-valuenow', '1');
+  };
+
+  /* Submit and show loading overlay */
+  window.submitSetup = function() {
+    var overlay = document.getElementById('loading-overlay');
+    overlay.classList.add('visible');
+    setTimeout(function() {
+      window.location.href = 'living-board.html';
+    }, 1800);
+  };
+
+})();
 </script>
 
 </body>
