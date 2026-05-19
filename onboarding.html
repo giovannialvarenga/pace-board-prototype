@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>PACE Board — Set up your board</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700;1,900&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:#F4F5F7;font-family:'DM Sans',sans-serif;color:#1F2937;-webkit-font-smoothing:antialiased;}
+
+.topbar{position:fixed;top:0;left:0;right:0;height:52px;background:#FFFFFF;border-bottom:1px solid #E5E7EB;display:flex;align-items:center;justify-content:space-between;padding:0 24px;z-index:100;}
+.wordmark{font-family:'Playfair Display',serif;font-style:italic;font-weight:700;font-size:16px;color:#1B2A4A;letter-spacing:-0.01em;}
+.step-counter{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:#9CA3AF;}
+
+.main{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:88px 24px 48px;}
+.card{background:#FFFFFF;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,0.06);padding:40px 36px;width:100%;max-width:480px;}
+
+.progress-track{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:36px;}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;transition:background 0.2s;}
+.dot.active{background:#0EA5A0;}
+.dot.inactive{background:#E5E7EB;border:1.5px solid #D1D5DB;}
+.progress-line{width:48px;height:2px;background:#E5E7EB;margin:0 6px;position:relative;overflow:hidden;}
+.progress-line-fill{position:absolute;top:0;left:0;height:100%;background:#0EA5A0;width:0;transition:width 0.3s;}
+
+.heading{font-family:'Playfair Display',serif;font-style:italic;font-weight:900;font-size:24px;color:#1B2A4A;line-height:1.2;margin-bottom:6px;}
+.subtext{font-size:13px;color:#6B7280;line-height:1.55;margin-bottom:28px;}
+
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;}
+.field label{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:#374151;}
+.field input,.field select,.field textarea{border:1px solid #E5E7EB;border-radius:8px;padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:14px;color:#1F2937;background:#FFFFFF;outline:none;transition:border-color 0.15s;width:100%;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#0EA5A0;}
+.field input{height:44px;}
+.field select{height:44px;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239CA3AF' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;cursor:pointer;}
+.field textarea{resize:none;line-height:1.6;padding:12px 14px;}
+
+.cta-navy{display:flex;align-items:center;justify-content:center;width:100%;height:44px;background:#1B2A4A;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;letter-spacing:0.05em;border:none;border-radius:8px;cursor:pointer;text-decoration:none;transition:background 0.15s;}
+.cta-navy:hover{background:#243760;}
+
+.cta-amber{display:flex;align-items:center;justify-content:center;width:100%;height:44px;background:#F59E0B;color:#000000;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;letter-spacing:0.05em;border:none;border-radius:8px;cursor:pointer;transition:background 0.15s;}
+.cta-amber:hover{background:#D97706;}
+
+.back-link{font-size:13px;color:#9CA3AF;cursor:pointer;display:inline-flex;align-items:center;margin-bottom:20px;transition:color 0.15s;}
+.back-link:hover{color:#6B7280;}
+
+.overlay{display:none;position:fixed;inset:0;background:rgba(244,245,247,0.95);z-index:200;flex-direction:column;align-items:center;justify-content:center;gap:20px;}
+.overlay.visible{display:flex;}
+.overlay-text{font-family:'Playfair Display',serif;font-style:italic;font-size:20px;color:#1B2A4A;}
+.spinner{width:20px;height:20px;border:2.5px solid #D1D5DB;border-top-color:#0EA5A0;border-radius:50%;animation:spin 0.7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="wordmark">PACE Board</span>
+  <span class="step-counter" id="step-label">Step 1 of 2</span>
+</div>
+
+<div class="main">
+  <div class="card">
+
+    <div class="progress-track">
+      <div class="dot active" id="dot1"></div>
+      <div class="progress-line"><div class="progress-line-fill" id="line-fill"></div></div>
+      <div class="dot inactive" id="dot2"></div>
+    </div>
+
+    <div id="step1">
+      <div class="heading">Tell us about your business.</div>
+      <div class="subtext">This is how we'll frame your board.</div>
+
+      <div class="field">
+        <label>Business name</label>
+        <input type="text" value="Cozinha da Dora"/>
+      </div>
+
+      <div class="field">
+        <label>What does your business do? (one sentence)</label>
+        <input type="text" value="I go to clients' homes and cook for them"/>
+      </div>
+
+      <div class="field">
+        <label>Your role</label>
+        <select>
+          <option value="founder" selected>Founder</option>
+          <option value="ceo">CEO</option>
+          <option value="coo">COO</option>
+          <option value="partner">Partner</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+
+      <button class="cta-navy" onclick="goToStep2()">Next →</button>
+    </div>
+
+    <div id="step2" style="display:none;">
+      <span class="back-link" onclick="goToStep1()">← Back</span>
+      <div class="heading">What's the main challenge you're working on?</div>
+      <div class="subtext">No need to have all the answers. Describe it as you'd tell a colleague.</div>
+
+      <div class="field" style="margin-bottom:20px;">
+        <textarea rows="6">I have happy clients who refer me, but I can't get customers who don't already know me. I've been posting on Instagram but it's not reaching new people.</textarea>
+      </div>
+
+      <button class="cta-amber" onclick="submitSetup()">Set up my board →</button>
+    </div>
+
+  </div>
+</div>
+
+<div class="overlay" id="loading-overlay">
+  <div class="overlay-text">Setting up your board...</div>
+  <div class="spinner"></div>
+</div>
+
+<script>
+function goToStep2(){
+  document.getElementById('step1').style.display='none';
+  document.getElementById('step2').style.display='block';
+  document.getElementById('step-label').textContent='Step 2 of 2';
+  document.getElementById('dot2').classList.remove('inactive');
+  document.getElementById('dot2').classList.add('active');
+  document.getElementById('line-fill').style.width='100%';
+}
+
+function goToStep1(){
+  document.getElementById('step2').style.display='none';
+  document.getElementById('step1').style.display='block';
+  document.getElementById('step-label').textContent='Step 1 of 2';
+  document.getElementById('dot2').classList.remove('active');
+  document.getElementById('dot2').classList.add('inactive');
+  document.getElementById('line-fill').style.width='0';
+}
+
+function submitSetup(){
+  document.getElementById('loading-overlay').classList.add('visible');
+  setTimeout(function(){
+    window.location.href='living-board.html';
+  },1800);
+}
+</script>
+
+</body>
+</html>

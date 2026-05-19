@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>PACE Board — Cozinha da Dora</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#F4F5F7;font-family:'DM Sans',sans-serif;color:#111827;font-size:14px;-webkit-font-smoothing:antialiased;}
+
+/* TOP NAV */
+.top-nav{position:fixed;top:0;left:0;right:0;height:52px;background:#FFFFFF;border-bottom:1px solid #E5E7EB;z-index:100;display:flex;align-items:center;padding:0 20px;gap:16px;}
+.nav-brand{font-family:'Playfair Display',serif;font-style:italic;font-size:15px;color:#1B2A4A;flex-shrink:0;}
+.nav-company{font-family:'DM Sans',sans-serif;font-weight:500;font-size:13px;color:#374151;flex:1;text-align:center;}
+.nav-cta{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;background:#F59E0B;color:#000000;padding:6px 14px;border-radius:20px;white-space:nowrap;text-decoration:none;flex-shrink:0;}
+.nav-hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;background:none;border:none;}
+.nav-hamburger span{display:block;width:20px;height:2px;background:#6B7280;border-radius:1px;}
+
+/* SIDEBAR */
+.sidebar{position:fixed;top:52px;left:0;width:220px;height:calc(100vh - 52px);background:#FFFFFF;border-right:1px solid #E5E7EB;display:flex;flex-direction:column;z-index:50;overflow-y:auto;}
+.sidebar-nav-label{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.14em;text-transform:uppercase;color:#9CA3AF;padding:16px 20px 8px;}
+.sidebar-nav-item{display:block;padding:12px 20px;font-family:'DM Sans',sans-serif;font-size:13px;color:#6B7280;cursor:pointer;text-decoration:none;border-left:3px solid transparent;}
+.sidebar-nav-item.active{color:#1B2A4A;border-left-color:#0EA5A0;background:#F8FFFE;}
+.sidebar-nav-item.teal{color:#0EA5A0;}
+.sidebar-separator{height:1px;background:#E5E7EB;margin:4px 0;}
+.sidebar-sessions-label{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.14em;text-transform:uppercase;color:#9CA3AF;padding:16px 20px 8px;}
+.session-item{padding:6px 20px;}
+.session-item-name{font-family:'DM Sans',sans-serif;font-size:12px;color:#374151;}
+.session-item-meta{font-family:'DM Sans',sans-serif;font-size:11px;color:#9CA3AF;}
+.session-item.pending .session-item-name{color:#9CA3AF;font-style:italic;}
+.session-item.pending .session-item-meta{color:#D1D5DB;}
+.sidebar-bottom{margin-top:auto;padding:16px 20px;border-top:1px solid #E5E7EB;display:flex;align-items:center;gap:10px;}
+.user-avatar{width:28px;height:28px;background:#1B2A4A;color:#FFFFFF;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;flex-shrink:0;}
+.user-name{font-family:'DM Sans',sans-serif;font-size:12px;color:#374151;}
+.user-divider{color:#D1D5DB;font-size:11px;}
+.user-logout{font-family:'JetBrains Mono',monospace;font-size:9px;color:#9CA3AF;cursor:pointer;text-decoration:none;}
+
+/* MAIN CONTENT */
+.main{margin-left:220px;margin-top:52px;padding:24px;padding-bottom:32px;}
+.board{max-width:720px;display:flex;flex-direction:column;gap:14px;}
+
+/* Board cards — copied from one-pager */
+.label{background:#0EA5A0;color:white;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.14em;text-transform:uppercase;padding:4px 10px;border-radius:3px;display:inline-block;margin-bottom:14px;}
+
+.identity{background:white;border-radius:12px;padding:20px 24px;display:flex;align-items:center;gap:16px;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
+.avatar{width:48px;height:48px;background:#1B2A4A;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.biz-name{font-family:'Playfair Display',serif;font-size:18px;font-weight:900;font-style:italic;color:#111827;line-height:1.1;}
+.biz-desc{font-size:12px;color:#6B7280;margin-top:3px;}
+.status-pill{margin-left:auto;background:#FEF3C7;color:#92400E;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;padding:5px 12px;border-radius:20px;flex-shrink:0;}
+
+.focus-card{background:#1B2A4A;border-radius:12px;padding:22px 24px;box-shadow:0 2px 8px rgba(0,0,0,0.12);}
+.focus-eyebrow{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:#0EA5A0;margin-bottom:8px;}
+.focus-title{font-size:18px;font-weight:600;color:white;line-height:1.4;margin-bottom:16px;}
+.progress-wrap{display:flex;flex-direction:column;gap:6px;}
+.progress-bar{height:6px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:3px;background:linear-gradient(to right,#0EA5A0,#F59E0B);}
+.progress-meta{display:flex;justify-content:space-between;}
+.progress-meta span{font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,0.4);}
+.progress-meta strong{color:rgba(255,255,255,0.7);font-weight:500;}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+
+.block-card{background:white;border-radius:12px;padding:18px 20px;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
+.block-eyebrow{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:#9CA3AF;margin-bottom:8px;}
+.block-text{font-size:13px;color:#374151;line-height:1.6;}
+
+.alert-card{background:white;border-radius:12px;padding:18px 20px;border-left:4px solid #F59E0B;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
+.alert-eyebrow{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:#F59E0B;margin-bottom:8px;}
+.alert-text{font-size:13px;color:#374151;line-height:1.6;}
+
+.questions-card{background:white;border-radius:12px;padding:18px 20px;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
+.q-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid #F3F4F6;}
+.q-item:last-child{border-bottom:none;padding-bottom:0;}
+.q-dot{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;font-size:9px;font-weight:600;}
+.q-dot.unanswered{background:#FEF3C7;color:#92400E;}
+.q-dot.answered{background:#D1FAE5;color:#065F46;}
+.q-dot.risky{background:#FEE2E2;color:#991B1B;}
+.q-text{font-size:13px;color:#374151;line-height:1.45;flex:1;}
+.q-age{font-family:'JetBrains Mono',monospace;font-size:9px;color:#9CA3AF;white-space:nowrap;margin-top:2px;}
+
+.moves-card{background:white;border-radius:12px;padding:18px 20px;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
+.move-row{display:flex;align-items:flex-start;gap:12px;padding:9px 0;border-bottom:1px solid #F3F4F6;}
+.move-row:last-child{border-bottom:none;padding-bottom:0;}
+.move-num{width:24px;height:24px;background:#1B2A4A;color:white;border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:10px;flex-shrink:0;margin-top:1px;}
+.move-body{flex:1;}
+.move-text{font-size:13px;color:#111827;font-weight:500;line-height:1.4;}
+.move-why{font-size:11px;color:#9CA3AF;margin-top:2px;}
+
+.signal-card{background:white;border-radius:12px;padding:18px 20px;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
+.signal-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.signal-row:last-child{margin-bottom:0;}
+.signal-label{font-size:12px;color:#6B7280;width:160px;flex-shrink:0;}
+.signal-bar-wrap{flex:1;height:6px;background:#F3F4F6;border-radius:3px;overflow:hidden;}
+.signal-fill{height:100%;border-radius:3px;}
+.signal-tag{font-family:'JetBrains Mono',monospace;font-size:9px;white-space:nowrap;padding:2px 7px;border-radius:10px;}
+
+.history{background:white;border-radius:12px;padding:16px 20px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
+.session-dot-active{width:10px;height:10px;background:#0EA5A0;border-radius:50%;flex-shrink:0;}
+.history-text{font-size:12px;color:#6B7280;flex:1;}
+.history-text strong{color:#374151;}
+.history-cta{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;background:#1B2A4A;color:white;padding:7px 14px;border-radius:6px;white-space:nowrap;cursor:pointer;text-decoration:none;}
+
+/* SIDEBAR OVERLAY (mobile) */
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:150;}
+.sidebar-overlay.open{display:block;}
+.sidebar.mobile-open{transform:translateX(0);}
+
+/* MOBILE BOTTOM NAV */
+.mobile-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;height:56px;background:#FFFFFF;border-top:1px solid #E5E7EB;z-index:100;}
+.mobile-bottom-nav-inner{display:flex;height:100%;}
+.mobile-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;text-decoration:none;cursor:pointer;}
+.mobile-nav-icon{width:18px;height:18px;display:flex;align-items:center;justify-content:center;}
+.mobile-nav-icon.board-icon::before{content:'';display:block;width:14px;height:14px;border:2px solid #6B7280;border-radius:3px;}
+.mobile-nav-icon.board-icon.active-icon::before{border-color:#0EA5A0;}
+.mobile-nav-icon.history-icon{flex-direction:column;gap:2px;}
+.mobile-nav-icon.history-icon::before{content:'';display:block;width:14px;height:2px;background:#6B7280;border-radius:1px;box-shadow:0 4px 0 #6B7280, 0 8px 0 #6B7280;}
+.mobile-nav-icon.session-icon::before{content:'+';font-size:16px;font-weight:600;color:#6B7280;line-height:1;}
+.mobile-nav-label{font-family:'DM Sans',sans-serif;font-size:10px;color:#6B7280;font-weight:500;}
+.mobile-nav-item.active .mobile-nav-label{color:#0EA5A0;}
+.mobile-nav-item.active .mobile-nav-icon.board-icon::before{border-color:#0EA5A0;}
+.mobile-nav-item.amber .mobile-nav-label{color:#F59E0B;}
+.mobile-nav-item.amber .mobile-nav-icon.session-icon::before{color:#F59E0B;}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .sidebar{transform:translateX(-100%);transition:transform 0.25s ease;z-index:160;}
+  .sidebar.mobile-open{transform:translateX(0);}
+  .main{margin-left:0;padding:16px;padding-bottom:72px;}
+  .nav-company{display:none;}
+  .nav-cta{display:none;}
+  .nav-hamburger{display:flex;}
+  .mobile-bottom-nav{display:block;}
+}
+
+@media (max-width: 540px) {
+  .two-col{grid-template-columns:1fr;}
+  .identity{flex-wrap:wrap;gap:12px;}
+  .status-pill{margin-left:0;}
+  .signal-label{width:110px;font-size:11px;}
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <span class="nav-brand">PACE Board</span>
+  <span class="nav-company">Cozinha da Dora</span>
+  <a href="specialist-selection.html" class="nav-cta">Talk with a Specialist →</a>
+  <button class="nav-hamburger" id="hamburger" aria-label="Menu">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+</nav>
+
+<div class="sidebar-overlay" id="overlay"></div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-nav-label">Navigation</div>
+  <a class="sidebar-nav-item active">My Board</a>
+  <a href="documents.html" class="sidebar-nav-item">Meu negócio</a>
+  <a href="specialist-selection.html" class="sidebar-nav-item teal">Talk with a Specialist</a>
+  <div class="sidebar-separator"></div>
+  <div class="sidebar-sessions-label">Sessions</div>
+  <div class="session-item">
+    <div class="session-item-name">Session 1</div>
+    <div class="session-item-meta">May 18 · 5 docs</div>
+  </div>
+  <div class="session-item pending">
+    <div class="session-item-name">Session 2</div>
+    <div class="session-item-meta">Not started</div>
+  </div>
+  <div class="sidebar-bottom">
+    <div class="user-avatar">D</div>
+    <span class="user-name">Dora</span>
+    <span class="user-divider">·</span>
+    <a href="#" class="user-logout">Log out</a>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="board">
+
+    <div class="identity">
+      <div class="avatar">🍳</div>
+      <div>
+        <div class="biz-name">Cozinha da Dora</div>
+        <div class="biz-desc">Private chef — I go to your home and cook for you</div>
+      </div>
+      <div class="status-pill">⬤ Testing &amp; learning</div>
+    </div>
+
+    <div class="focus-card">
+      <div class="focus-eyebrow">What you're working on right now</div>
+      <div class="focus-title">Getting your first 10 paying customers who find you on their own — without referrals from family</div>
+      <div class="progress-wrap">
+        <div class="progress-bar"><div class="progress-fill" style="width:50%"></div></div>
+        <div class="progress-meta">
+          <span>Day 7 of your 14-day plan</span>
+          <strong>50% done</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="alert-card">
+        <div class="alert-eyebrow">What's slowing you down</div>
+        <div class="alert-text">People don't know you exist yet. You're good at the work — the problem is that the right people haven't seen it. Content is being posted but it's not reaching anyone new.</div>
+      </div>
+      <div class="block-card">
+        <div class="block-eyebrow">What's going well</div>
+        <div class="block-text">Every client who has hired you has come back or referred someone. The service works. The product is validated — the channel isn't.</div>
+      </div>
+    </div>
+
+    <div class="questions-card">
+      <div class="block-eyebrow">Open questions — things we haven't proven yet</div>
+      <div class="q-item">
+        <div class="q-dot risky">!</div>
+        <div class="q-text">Will Instagram content bring customers who don't already know Dora personally?</div>
+        <div class="q-age">Not tested</div>
+      </div>
+      <div class="q-item">
+        <div class="q-dot unanswered">?</div>
+        <div class="q-text">What's the main reason someone hires a private chef — a special occasion, weekly routine, or something else?</div>
+        <div class="q-age">Not tested</div>
+      </div>
+      <div class="q-item">
+        <div class="q-dot unanswered">?</div>
+        <div class="q-text">Is R$200–350 the right price range, or are we leaving money on the table?</div>
+        <div class="q-age">Not tested</div>
+      </div>
+    </div>
+
+    <div class="moves-card">
+      <div class="block-eyebrow">Your next 3 moves — this week</div>
+      <div class="move-row">
+        <div class="move-num">1</div>
+        <div class="move-body">
+          <div class="move-text">Film a 60-second video of a full meal being prepared at a client's home</div>
+          <div class="move-why">Real context converts better than a studio. Ask the client to say one sentence at the end.</div>
+        </div>
+      </div>
+      <div class="move-row">
+        <div class="move-num">2</div>
+        <div class="move-body">
+          <div class="move-text">Message 5 past clients and ask: "Do you know anyone who would love this?"</div>
+          <div class="move-why">Referrals are your fastest channel right now. Activate it explicitly.</div>
+        </div>
+      </div>
+      <div class="move-row">
+        <div class="move-num">3</div>
+        <div class="move-body">
+          <div class="move-text">Pick ONE neighborhood and post in the local residents' WhatsApp group</div>
+          <div class="move-why">Geographic focus beats broadcasting. Prove it works in one area first.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="signal-card">
+      <div class="block-eyebrow">Your market — how complex is it?</div>
+      <div class="signal-row">
+        <div class="signal-label">How fast things change</div>
+        <div class="signal-bar-wrap"><div class="signal-fill" style="width:25%;background:#0EA5A0;"></div></div>
+        <div class="signal-tag" style="background:#D1FAE5;color:#065F46;">Stable</div>
+      </div>
+      <div class="signal-row">
+        <div class="signal-label">How hard to predict</div>
+        <div class="signal-bar-wrap"><div class="signal-fill" style="width:40%;background:#F59E0B;"></div></div>
+        <div class="signal-tag" style="background:#FEF3C7;color:#92400E;">Moderate</div>
+      </div>
+      <div class="signal-row">
+        <div class="signal-label">Competition intensity</div>
+        <div class="signal-bar-wrap"><div class="signal-fill" style="width:35%;background:#F59E0B;"></div></div>
+        <div class="signal-tag" style="background:#FEF3C7;color:#92400E;">Moderate</div>
+      </div>
+      <div style="margin-top:12px;padding-top:10px;border-top:1px solid #F3F4F6;font-size:12px;color:#6B7280;line-height:1.5;">
+        Good news: this is a stable market. You don't need to move fast — you need to be <strong style="color:#374151;">consistently visible</strong> in the right places.
+      </div>
+    </div>
+
+    <div class="history">
+      <div class="session-dot-active"></div>
+      <div class="history-text">
+        <strong>Session 1</strong> — May 18, 2026 · <a href="documents.html" style="color:#0EA5A0;text-decoration:none;">5 documents generated</a>
+      </div>
+      <a href="specialist-selection.html" class="history-cta">Start session 2 →</a>
+    </div>
+
+  </div>
+</main>
+
+<nav class="mobile-bottom-nav">
+  <div class="mobile-bottom-nav-inner">
+    <a class="mobile-nav-item active" id="nav-board">
+      <div class="mobile-nav-icon board-icon active-icon"></div>
+      <span class="mobile-nav-label">Board</span>
+    </a>
+    <a href="documents.html" class="mobile-nav-item" id="nav-history">
+      <div class="mobile-nav-icon history-icon"></div>
+      <span class="mobile-nav-label">Meu negócio</span>
+    </a>
+    <a href="specialist-selection.html" class="mobile-nav-item amber" id="nav-session">
+      <div class="mobile-nav-icon session-icon"></div>
+      <span class="mobile-nav-label">Specialists</span>
+    </a>
+  </div>
+</nav>
+
+<script>
+var hamburger=document.getElementById('hamburger');
+var sidebar=document.getElementById('sidebar');
+var overlay=document.getElementById('overlay');
+function openSidebar(){sidebar.classList.add('mobile-open');overlay.classList.add('open');}
+function closeSidebar(){sidebar.classList.remove('mobile-open');overlay.classList.remove('open');}
+hamburger.addEventListener('click',function(){sidebar.classList.contains('mobile-open')?closeSidebar():openSidebar();});
+overlay.addEventListener('click',closeSidebar);
+var navItems=document.querySelectorAll('.mobile-nav-item');
+navItems.forEach(function(item){item.addEventListener('click',function(){navItems.forEach(function(n){n.classList.remove('active');});this.classList.add('active');});});
+</script>
+
+</body>
+</html>

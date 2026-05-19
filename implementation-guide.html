@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PACE Board — Implementation Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Reset ────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:      #0A0A0A;
+      --white:      #FAFAFA;
+      --navy:       #1B2A4A;
+      --navy-dim:   rgba(27,42,74,0.06);
+      --teal:       #0EA5A0;
+      --teal-dim:   rgba(14,165,160,0.12);
+      --amber:      #F59E0B;
+      --amber-dim:  rgba(245,158,11,0.12);
+      --gray:       #6B7280;
+      --gray-light: #9CA3AF;
+      --text:       #1F2937;
+      --text-dim:   #374151;
+      --border:     #E5E7EB;
+      --bg-page:    #F4F5F7;
+
+      /* Status colors */
+      --complete:   #0EA5A0; /* teal */
+      --current:    #F59E0B; /* amber */
+      --next:       #1B2A4A; /* navy */
+      --upcoming:   #9CA3AF; /* gray */
+
+      --ff-display: 'Playfair Display', Georgia, serif;
+      --ff-body:    'DM Sans', system-ui, sans-serif;
+      --ff-mono:    'JetBrains Mono', monospace;
+
+      --pad-h: clamp(20px, 4vw, 60px);
+      --max-w: 1060px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--ff-body);
+      background: var(--bg-page);
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Top bar ──────────────────────────────────────────── */
+    .topbar {
+      background: var(--black);
+      padding: 0 var(--pad-h);
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .topbar__brand {
+      font-family: var(--ff-mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--white);
+    }
+
+    .topbar__brand span { color: var(--teal); }
+
+    .topbar__tag {
+      font-family: var(--ff-mono);
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+    }
+
+    /* ── Part navigation ──────────────────────────────────── */
+    .part-nav {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 0 var(--pad-h);
+      display: flex;
+      gap: 0;
+      position: sticky;
+      top: 52px;
+      z-index: 99;
+    }
+
+    .part-nav__item {
+      font-family: var(--ff-mono);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gray);
+      text-decoration: none;
+      padding: 14px 24px 13px;
+      border-bottom: 2px solid transparent;
+      transition: color 0.2s, border-color 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .part-nav__item:hover { color: var(--navy); }
+
+    .part-nav__item.active {
+      color: var(--navy);
+      border-bottom-color: var(--teal);
+    }
+
+    .part-nav__num {
+      font-size: 8px;
+      opacity: 0.5;
+    }
+
+    /* ── Page wrapper ─────────────────────────────────────── */
+    .page {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 48px var(--pad-h) 80px;
+    }
+
+    /* ── Part header ──────────────────────────────────────── */
+    .part-header {
+      margin-bottom: 48px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .part-eyebrow {
+      font-family: var(--ff-mono);
+      font-size: 9px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 12px;
+    }
+
+    .part-title {
+      font-family: var(--ff-display);
+      font-size: clamp(28px, 4vw, 44px);
+      font-weight: 900;
+      font-style: italic;
+      color: var(--black);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+
+    .part-desc {
+      margin-top: 14px;
+      font-size: 15px;
+      color: var(--gray);
+      max-width: 600px;
+      line-height: 1.7;
+    }
+
+    /* ══════════════════════════════════════════════════════ */
+    /* PART 1 — ROADMAP                                       */
+    /* ══════════════════════════════════════════════════════ */
+
+    .roadmap {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      position: relative;
+    }
+
+    /* Vertical connecting line */
+    .roadmap::before {
+      content: '';
+      position: absolute;
+      left: 23px;
+      top: 48px;
+      bottom: 48px;
+      width: 1px;
+      background: linear-gradient(
+        to bottom,
+        var(--complete) 0%,
+        var(--complete) 20%,
+        var(--border) 20%,
+        var(--border) 100%
+      );
+    }
+
+    .roadmap-card {
+      display: grid;
+      grid-template-columns: 48px 1fr;
+      gap: 24px;
+      padding: 28px 0;
+      position: relative;
+    }
+
+    .roadmap-card + .roadmap-card {
+      border-top: 1px solid var(--border);
+    }
+
+    /* Status dot */
+    .roadmap-dot {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--ff-mono);
+      font-size: 11px;
+      font-weight: 500;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
+      border: 2px solid transparent;
+    }
+
+    .roadmap-dot--complete {
+      background: var(--teal);
+      color: #fff;
+      border-color: var(--teal);
+    }
+
+    .roadmap-dot--current {
+      background: var(--amber);
+      color: var(--black);
+      border-color: var(--amber);
+      box-shadow: 0 0 0 4px rgba(245,158,11,0.15);
+    }
+
+    .roadmap-dot--next {
+      background: var(--white);
+      color: var(--navy);
+      border-color: var(--navy);
+    }
+
+    .roadmap-dot--upcoming {
+      background: var(--white);
+      color: var(--gray-light);
+      border-color: var(--border);
+    }
+
+    .roadmap-dot--launch {
+      background: var(--black);
+      color: var(--white);
+      border-color: var(--black);
+    }
+
+    .roadmap-body { padding-top: 4px; }
+
+    .roadmap-status {
+      font-family: var(--ff-mono);
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .roadmap-status--complete { color: var(--complete); }
+    .roadmap-status--current  { color: var(--current); }
+    .roadmap-status--next     { color: var(--next); }
+    .roadmap-status--upcoming { color: var(--upcoming); }
+    .roadmap-status--launch   { color: var(--gray); }
+
+    .roadmap-status__pulse {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--amber);
+      animation: pulse 2s ease infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.4; transform: scale(0.7); }
+    }
+
+    .roadmap-title {
+      font-family: var(--ff-display);
+      font-size: 18px;
+      font-weight: 700;
+      font-style: italic;
+      color: var(--black);
+      margin-bottom: 8px;
+      line-height: 1.25;
+    }
+
+    .roadmap-title--dim { color: var(--gray); }
+
+    .roadmap-desc {
+      font-size: 14px;
+      color: var(--text-dim);
+      line-height: 1.65;
+      margin-bottom: 14px;
+    }
+
+    .roadmap-desc--dim { color: var(--gray-light); }
+
+    .roadmap-trigger {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--ff-mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      color: var(--gray-light);
+      padding: 6px 12px;
+      background: var(--bg-page);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+    }
+
+    .roadmap-trigger__arrow { opacity: 0.5; }
+
+    /* ══════════════════════════════════════════════════════ */
+    /* PART 2 — PILOT PLAYBOOK                               */
+    /* ══════════════════════════════════════════════════════ */
+
+    .playbook {
+      display: flex;
+      flex-direction: column;
+      gap: 48px;
+    }
+
+    /* Phase block */
+    .phase {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .phase-header {
+      padding: 20px 28px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .phase-header--before { background: var(--navy-dim); }
+    .phase-header--during { background: var(--teal-dim); }
+    .phase-header--after  { background: var(--amber-dim); }
+
+    .phase-icon {
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    .phase-title {
+      font-family: var(--ff-mono);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--navy);
+      font-weight: 500;
+    }
+
+    .phase-subtitle {
+      font-size: 12px;
+      color: var(--gray);
+      margin-top: 2px;
+    }
+
+    .phase-steps {
+      padding: 8px 0;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 52px 1fr;
+      padding: 20px 28px 20px 0;
+      border-bottom: 1px solid var(--border);
+      gap: 0;
+    }
+
+    .step:last-child { border-bottom: none; }
+
+    .step__num-col {
+      display: flex;
+      justify-content: center;
+      padding-top: 2px;
+    }
+
+    .step__num {
+      font-family: var(--ff-mono);
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--gray-light);
+      width: 24px;
+      height: 24px;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 10px;
+    }
+
+    .step__body {}
+
+    .step__title {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+
+    .step__desc {
+      font-size: 13px;
+      color: var(--gray);
+      line-height: 1.65;
+    }
+
+    .step__desc p + p { margin-top: 6px; }
+
+    /* Code block — for file paths and commands */
+    .code-block {
+      background: var(--black);
+      border-radius: 3px;
+      padding: 14px 18px;
+      margin-top: 10px;
+    }
+
+    .code-label {
+      font-family: var(--ff-mono);
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 8px;
+    }
+
+    .code-block code {
+      font-family: var(--ff-mono);
+      font-size: 12px;
+      color: rgba(255,255,255,0.8);
+      line-height: 1.8;
+      display: block;
+    }
+
+    .code-block code .hl { color: var(--amber); }
+    .code-block code .dim { color: rgba(255,255,255,0.3); }
+    .code-block code .teal { color: var(--teal); }
+
+    /* Quoted instruction */
+    .instruction-block {
+      background: var(--bg-page);
+      border-left: 2px solid var(--navy);
+      padding: 12px 16px;
+      margin-top: 10px;
+      border-radius: 0 3px 3px 0;
+    }
+
+    .instruction-block p {
+      font-size: 13px;
+      color: var(--text-dim);
+      line-height: 1.65;
+      font-style: italic;
+    }
+
+    .instruction-block strong {
+      font-style: normal;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    /* Progress tracker */
+    .progress-tracker {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .progress-header h3 {
+      font-family: var(--ff-mono);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--navy);
+    }
+
+    .progress-badge {
+      font-family: var(--ff-mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--teal);
+      background: var(--teal-dim);
+      padding: 4px 10px;
+      border-radius: 2px;
+    }
+
+    .progress-steps {
+      padding: 0;
+    }
+
+    .progress-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .progress-step:last-child { border-bottom: none; }
+
+    .progress-check {
+      width: 18px;
+      height: 18px;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .progress-step__text {
+      font-size: 14px;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+
+    .progress-step__text strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .progress-step__sub {
+      font-size: 12px;
+      color: var(--gray-light);
+      margin-top: 2px;
+      font-family: var(--ff-mono);
+      letter-spacing: 0.04em;
+    }
+
+    /* Outcome box */
+    .outcome-box {
+      background: var(--teal-dim);
+      border: 1px solid rgba(14,165,160,0.2);
+      border-radius: 4px;
+      padding: 20px 24px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .outcome-box__icon {
+      font-size: 18px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .outcome-box__title {
+      font-family: var(--ff-mono);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 6px;
+    }
+
+    .outcome-box__body {
+      font-size: 14px;
+      color: var(--text-dim);
+      line-height: 1.65;
+    }
+
+    .outcome-box__body strong { color: var(--text); font-weight: 500; }
+
+    /* Section divider */
+    .section-divider {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 8px 0;
+    }
+
+    .section-divider::before,
+    .section-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .section-divider span {
+      font-family: var(--ff-mono);
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gray-light);
+      white-space: nowrap;
+    }
+
+    /* Session log table */
+    .session-log {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .session-log-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      font-family: var(--ff-mono);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--navy);
+    }
+
+    .session-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .session-table th {
+      font-family: var(--ff-mono);
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gray-light);
+      padding: 10px 20px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-page);
+      font-weight: 400;
+    }
+
+    .session-table td {
+      font-size: 13px;
+      color: var(--text-dim);
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    .session-table tr:last-child td { border-bottom: none; }
+
+    .session-table td:first-child {
+      font-family: var(--ff-mono);
+      font-size: 11px;
+      color: var(--navy);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .tag {
+      display: inline-block;
+      font-family: var(--ff-mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 2px;
+    }
+
+    .tag--pending {
+      background: var(--border);
+      color: var(--gray);
+    }
+
+    .tag--open {
+      background: var(--amber-dim);
+      color: #92400E;
+    }
+
+    /* ── Utility ──────────────────────────────────────────── */
+    .mt-24 { margin-top: 24px; }
+    .mt-16 { margin-top: 16px; }
+    .mt-8  { margin-top: 8px; }
+
+    /* Hidden part sections */
+    .part-section { display: none; }
+    .part-section.active { display: block; }
+
+    /* ── Footer ───────────────────────────────────────────── */
+    .guide-footer {
+      background: var(--white);
+      border-top: 1px solid var(--border);
+      padding: 20px var(--pad-h);
+      margin-top: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .guide-footer__brand {
+      font-family: var(--ff-display);
+      font-size: 13px;
+      font-style: italic;
+      font-weight: 700;
+      color: var(--navy);
+    }
+
+    .guide-footer__brand span { color: var(--teal); }
+
+    .guide-footer__note {
+      font-family: var(--ff-mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gray-light);
+    }
+
+    /* ── Responsive ───────────────────────────────────────── */
+    @media (max-width: 600px) {
+      .roadmap::before { left: 19px; }
+      .roadmap-dot { width: 40px; height: 40px; }
+      .roadmap-card { grid-template-columns: 40px 1fr; gap: 16px; }
+      .step { grid-template-columns: 44px 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Top bar -->
+<header class="topbar">
+  <span class="topbar__brand">PACE <span>Board</span></span>
+  <span class="topbar__tag">Internal — Implementation Guide</span>
+</header>
+
+<!-- Part navigation -->
+<nav class="part-nav" aria-label="Guide sections">
+  <a href="#" class="part-nav__item active" data-part="roadmap">
+    <span class="part-nav__num">01</span>
+    Product Roadmap
+  </a>
+  <a href="#" class="part-nav__item" data-part="playbook">
+    <span class="part-nav__num">02</span>
+    Pilot Playbook
+  </a>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- PART 1 — ROADMAP                                          -->
+<!-- ══════════════════════════════════════════════════════════ -->
+
+<div class="part-section active" id="part-roadmap">
+  <div class="page">
+
+    <div class="part-header">
+      <p class="part-eyebrow">Part 01</p>
+      <h1 class="part-title">Product Roadmap</h1>
+      <p class="part-desc">Five phases from methodology to live product. We're at the pilot stage — validating before we build the technical layer.</p>
+    </div>
+
+    <div class="roadmap">
+
+      <!-- Card 1: Complete -->
+      <div class="roadmap-card">
+        <div class="roadmap-dot roadmap-dot--complete" aria-label="Complete">✓</div>
+        <div class="roadmap-body">
+          <div class="roadmap-status roadmap-status--complete">Complete — Plan 1</div>
+          <h2 class="roadmap-title">Methodology Foundation</h2>
+          <p class="roadmap-desc">25 files encoded. PACE Strategist prompt ready. All output templates created. Dogfood run #1 complete.</p>
+          <div class="roadmap-trigger">
+            <span>Trigger for next</span>
+            <span class="roadmap-trigger__arrow">→</span>
+            <span>3 pilot sessions completed</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2: Current -->
+      <div class="roadmap-card">
+        <div class="roadmap-dot roadmap-dot--current" aria-label="In progress">
+          <div class="roadmap-status__pulse"></div>
+        </div>
+        <div class="roadmap-body">
+          <div class="roadmap-status roadmap-status--current">
+            <div class="roadmap-status__pulse"></div>
+            Current — Pilot
+          </div>
+          <h2 class="roadmap-title">3 Customer Sessions</h2>
+          <p class="roadmap-desc">Run the full session flow with 3 real customers from PACE's own network. Deliver 5 artifacts each. Collect feedback.</p>
+          <div class="roadmap-trigger">
+            <span>Trigger for next</span>
+            <span class="roadmap-trigger__arrow">→</span>
+            <span>Good-enough checklist criteria 1–3 pass</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3: Next -->
+      <div class="roadmap-card">
+        <div class="roadmap-dot roadmap-dot--next" aria-label="Upcoming">02</div>
+        <div class="roadmap-body">
+          <div class="roadmap-status roadmap-status--next">Next — Plan 2</div>
+          <h2 class="roadmap-title roadmap-title--dim">Backend API + AI Engine</h2>
+          <p class="roadmap-desc roadmap-desc--dim">Claude API integration, Supabase data layer, Whisper audio transcription, PDF generation, company memory model.</p>
+          <div class="roadmap-trigger">
+            <span>Trigger for next</span>
+            <span class="roadmap-trigger__arrow">→</span>
+            <span>Plan 2 complete</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 4: Future -->
+      <div class="roadmap-card">
+        <div class="roadmap-dot roadmap-dot--upcoming" aria-label="Future">03</div>
+        <div class="roadmap-body">
+          <div class="roadmap-status roadmap-status--upcoming">Future — Plan 3</div>
+          <h2 class="roadmap-title roadmap-title--dim">Web Frontend</h2>
+          <p class="roadmap-desc roadmap-desc--dim">Customer dashboard (Board Room), discovery interface (text + audio), operator dashboard, subscription paywall.</p>
+          <div class="roadmap-trigger">
+            <span>Trigger for next</span>
+            <span class="roadmap-trigger__arrow">→</span>
+            <span>Good-enough checklist — all 5 criteria pass</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 5: Launch -->
+      <div class="roadmap-card">
+        <div class="roadmap-dot roadmap-dot--launch" aria-label="Launch">→</div>
+        <div class="roadmap-body">
+          <div class="roadmap-status roadmap-status--launch">Launch</div>
+          <h2 class="roadmap-title roadmap-title--dim">PACE Board Subscription Available</h2>
+          <p class="roadmap-desc roadmap-desc--dim">pt-BR + en. PACE Board tier live. Expert tier active.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Session log -->
+    <div class="mt-24">
+      <div class="session-log">
+        <div class="session-log-header">Pilot Session Tracker</div>
+        <table class="session-table">
+          <thead>
+            <tr>
+              <th>Session</th>
+              <th>Customer</th>
+              <th>Challenge</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>#1</td>
+              <td>—</td>
+              <td>—</td>
+              <td><span class="tag tag--open">Open</span></td>
+            </tr>
+            <tr>
+              <td>#2</td>
+              <td>—</td>
+              <td>—</td>
+              <td><span class="tag tag--pending">Pending</span></td>
+            </tr>
+            <tr>
+              <td>#3</td>
+              <td>—</td>
+              <td>—</td>
+              <td><span class="tag tag--pending">Pending</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- PART 2 — PILOT PLAYBOOK                                   -->
+<!-- ══════════════════════════════════════════════════════════ -->
+
+<div class="part-section" id="part-playbook">
+  <div class="page">
+
+    <div class="part-header">
+      <p class="part-eyebrow">Part 02</p>
+      <h1 class="part-title">Pilot Playbook</h1>
+      <p class="part-desc">Step-by-step guide for each of the 3 customer sessions. Run this in order — one session at a time.</p>
+    </div>
+
+    <div class="playbook">
+
+      <!-- ── Phase A: Before ─────────────────────────────── -->
+      <div class="phase">
+        <div class="phase-header phase-header--before">
+          <span class="phase-icon">◎</span>
+          <div>
+            <div class="phase-title">Before the Session</div>
+            <div class="phase-subtitle">Outreach, pre-brief, preparation</div>
+          </div>
+        </div>
+        <div class="phase-steps">
+
+          <div class="step">
+            <div class="step__num-col"><div class="step__num">1</div></div>
+            <div class="step__body">
+              <p class="step__title">Send the outreach message</p>
+              <div class="step__desc">
+                <p>From <code style="font-family:var(--ff-mono);font-size:12px;background:#F3F4F6;padding:1px 6px;border-radius:2px;">products/pace-board/assets/onboarding-pilot.md</code> — Part 1.</p>
+                <p>Personalize the first sentence with their specific context before sending.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step__num-col"><div class="step__num">2</div></div>
+            <div class="step__body">
+              <p class="step__title">Get their one-sentence challenge as reply</p>
+              <div class="step__desc">
+                <p>Wait for their response. This is the opening message for the session. Copy it exactly.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step__num-col"><div class="step__num">3</div></div>
+            <div class="step__body">
+              <p class="step__title">Send the pre-session brief — 24 hours before</p>
+              <div class="step__desc">
+                <p>From <code style="font-family:var(--ff-mono);font-size:12px;background:#F3F4F6;padding:1px 6px;border-radius:2px;">products/pace-board/assets/onboarding-pilot.md</code> — Part 2.</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── Phase B: During ─────────────────────────────── -->
+      <div class="phase">
+        <div class="phase-header phase-header--during">
+          <span class="phase-icon">●</span>
+          <div>
+            <div class="phase-title">Running the Session</div>
+            <div class="phase-subtitle">40–50 min — run this live</div>
+          </div>
+        </div>
+        <div class="phase-steps">
+
+          <div class="step">
+            <div class="step__num-col"><div class="step__num">1</div></div>
+            <div class="step__body">
+              <p class="step__title">Open a new Claude Code session</p>
+              <div class="step__desc">
+                <p>Separate from this session. A clean context with no prior conversation.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step__num-col"><div class="step__num">2</div></div>
+            <div class="step__body">
+              <p class="step__title">Load the Strategist context</p>
+              <div class="step__desc">
+                <p>Tell Claude exactly:</p>
+              </div>
+              <div class="instruction-block">
+                <p><strong>You are the PACE Strategist. Load your system prompt from</strong> <code style="font-family:var(--ff-mono);font-size:12px;">products/pace-board/agents/strategist/system-prompt.md</code> <strong>and these methodology files:</strong></p>
+              </div>
+              <div class="code-block mt-8">
+                <div class="code-label">Files to load</div>
+                <code>
+                  <span class="teal">methodology/core/v1.0/</span>maturity-dimensions.md<br>
+                  <span class="teal">methodology/core/v1.0/</span>module-matrix.md<br>
+                  <span class="teal">methodology/core/v1.0/</span>tracks.md<br>
+                  <span class="teal">upstream/v1/</span>rules.json<br>
+                  <span class="teal">upstream/v1/templates/</span>upstream-opinion.md
+                </code>
+              </div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step__num-col"><div class="step__num">3</div></div>
+            <div class="step__body">
+              <p class="step__title">Paste the customer's one-sentence challenge</p>
+              <div class="step__desc">
+                <p>This is the opening message. Paste it exactly as received. Do not paraphrase.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step__num-col"><div class="step__num">4</div></div>
+            <div class="step__body">
+              <p class="step__title">Let the Strategist run the full sequence</p>
+              <div class="step__desc">
+                <p>The flow is automatic: Discovery → Upstream → [confirm focus + mode] → Batch generation.</p>
+                <p>Do not interrupt. Follow the Strategist's lead. Answer honestly on behalf of the customer if needed.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step__num-col"><div class="step__num">5</div></div>
+            <div class="step__body">
+              <p class="step__title">Copy all generated outputs</p>
+              <div class="step__desc">
+                <p>Wait for the full batch. The Strategist will generate all 5 artifacts in sequence. Copy them before closing the session.</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── Phase C: After ──────────────────────────────── -->
+      <div class="phase">
+        <div class="phase-header phase-header--after">
+          <span class="phase-icon">◆</span>
+          <div>
+            <div class="phase-title">After the Session</div>
+            <div class="phase-subtitle">Within 24 hours</div>
+          </div>
+        </div>
+        <div class="phase-steps">
+
+          <div class="step">
+            <div class="step__num-col"><div class="step__num">1</div></div>
+            <div class="step__body">
+              <p class="step__title">Save the 5 artifacts as files</p>
+              <div class="step__desc">
+                <p>Use <code style="font-family:var(--ff-mono);font-size:12px;background:#F3F4F6;padding:1px 6px;border-radius:2px;">[customer]</code> as the customer's first name or handle.</p>
+              </div>
+              <div class="code-block mt-8">
+                <div class="code-label">File naming convention</div>
+                <code>
+                  <span class="hl">[customer]</span>-upstream-opinion.md<br>
+                  <span class="hl">[customer]</span>-world-model.md<br>
+                  <span class="hl">[customer]</span>-worldview.md<br>
+                  <span class="hl">[customer]</span>-movement-plan.md<br>
+                  <span class="hl">[customer]</span>-trial-prompts.md
+                </code>
+              </div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step__num-col"><div class="step__num">2</div></div>
+            <div class="step__body">
+              <p class="step__title">Send the post-session delivery</p>
+              <div class="step__desc">
+                <p>From <code style="font-family:var(--ff-mono);font-size:12px;background:#F3F4F6;padding:1px 6px;border-radius:2px;">products/pace-board/assets/onboarding-pilot.md</code> — Part 3.</p>
+                <p>Include links to the 5 artifact files.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step__num-col"><div class="step__num">3</div></div>
+            <div class="step__body">
+              <p class="step__title">Log friction points</p>
+              <div class="step__desc">
+                <p>Open the friction log and document anything that felt slow, confusing, or wrong during the session.</p>
+              </div>
+              <div class="code-block mt-8">
+                <div class="code-label">Friction log path</div>
+                <code>
+                  <span class="teal">products/pace-board/dogfood/</span><br>
+                  <span class="dim">  └─</span> pace-board-initiative/<br>
+                  <span class="dim">       └─</span> <span class="hl">98-friction-log.md</span>
+                </code>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── Progress tracking ───────────────────────────── -->
+      <div class="section-divider">
+        <span>After all 3 sessions</span>
+      </div>
+
+      <div class="progress-tracker">
+        <div class="progress-header">
+          <h3>Good-Enough Checklist</h3>
+          <span class="progress-badge">Gate to Plan 2</span>
+        </div>
+        <div class="progress-steps">
+          <div class="progress-step">
+            <div class="progress-check" aria-label="unchecked"></div>
+            <div>
+              <div class="progress-step__text"><strong>Criterion 1</strong> — open and update after sessions</div>
+              <div class="progress-step__sub">products/pace-board/validation/good-enough-checklist.md</div>
+            </div>
+          </div>
+          <div class="progress-step">
+            <div class="progress-check" aria-label="unchecked"></div>
+            <div>
+              <div class="progress-step__text"><strong>Criterion 2</strong> — open and update after sessions</div>
+              <div class="progress-step__sub">products/pace-board/validation/good-enough-checklist.md</div>
+            </div>
+          </div>
+          <div class="progress-step">
+            <div class="progress-check" aria-label="unchecked"></div>
+            <div>
+              <div class="progress-step__text"><strong>Criterion 3</strong> — open and update after sessions</div>
+              <div class="progress-step__sub">products/pace-board/validation/good-enough-checklist.md</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="outcome-box">
+        <div class="outcome-box__icon">→</div>
+        <div>
+          <div class="outcome-box__title">If criteria 1, 2, and 3 all pass</div>
+          <div class="outcome-box__body">Scope <strong>Plan 2 — Backend API</strong>. Open the good-enough checklist at <code style="font-family:var(--ff-mono);font-size:12px;">products/pace-board/validation/good-enough-checklist.md</code>, update each criterion based on what the 3 sessions showed, and proceed to planning.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="guide-footer">
+  <span class="guide-footer__brand">PACE <span>Board</span></span>
+  <span class="guide-footer__note">Internal — Not for distribution</span>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  var navItems  = document.querySelectorAll('.part-nav__item');
+  var sections  = document.querySelectorAll('.part-section');
+
+  function activate(partId) {
+    navItems.forEach(function (item) {
+      item.classList.toggle('active', item.dataset.part === partId);
+    });
+    sections.forEach(function (section) {
+      var isMatch = section.id === 'part-' + partId;
+      section.classList.toggle('active', isMatch);
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  navItems.forEach(function (item) {
+    item.addEventListener('click', function (e) {
+      e.preventDefault();
+      activate(item.dataset.part);
+    });
+  });
+
+  // Populate checklist from good-enough-checklist.md titles if parseable
+  // (left as manual — criteria text lives in the actual file)
+
+})();
+</script>
+
+</body>
+</html>

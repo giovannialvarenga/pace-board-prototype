@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Start a Session — PACE Board</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700;1,900&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#F4F5F7;font-family:'DM Sans',sans-serif;color:#1F2937;font-size:14px;-webkit-font-smoothing:antialiased;}
+
+/* TOP NAV */
+.top-nav{position:fixed;top:0;left:0;right:0;height:52px;background:#FFFFFF;border-bottom:1px solid #E5E7EB;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 24px;}
+.nav-back{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:#6B7280;text-decoration:none;transition:color 0.15s;}
+.nav-back:hover{color:#1B2A4A;}
+.nav-center{font-family:'DM Sans',sans-serif;font-weight:500;font-size:13px;color:#374151;position:absolute;left:50%;transform:translateX(-50%);}
+.nav-brand{font-family:'Playfair Display',serif;font-style:italic;font-size:15px;color:#1B2A4A;}
+
+/* PAGE */
+.page{margin-top:52px;padding-bottom:72px;}
+
+/* HEADER */
+.page-header{max-width:720px;margin:0 auto;padding:44px 24px 36px;}
+.header-eyebrow{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:#9CA3AF;margin-bottom:14px;}
+.header-h1{font-family:'Playfair Display',serif;font-style:italic;font-weight:900;font-size:clamp(24px,4vw,34px);color:#1B2A4A;line-height:1.15;margin-bottom:0;}
+
+/* ─── ORCHESTRATOR SECTION ───────────────────────── */
+.orch-wrap{max-width:720px;margin:0 auto;padding:0 24px;}
+
+.orch-card{
+  background:#FFFFFF;
+  border-radius:14px;
+  box-shadow:0 2px 12px rgba(0,0,0,0.08);
+  overflow:hidden;
+  position:relative;
+}
+
+/* Tri-color gradient top bar representing all 3 specialists */
+.orch-card::before{
+  content:'';
+  display:block;
+  height:4px;
+  background:linear-gradient(to right, #F59E0B 0%, #F59E0B 33%, #0EA5A0 33%, #0EA5A0 66%, #1B2A4A 66%, #1B2A4A 100%);
+}
+
+.orch-inner{padding:28px 32px 32px;}
+
+.orch-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px;flex-wrap:wrap;}
+.orch-badge{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.14em;text-transform:uppercase;background:#FEF3C7;color:#92400E;padding:4px 10px;border-radius:10px;flex-shrink:0;}
+.orch-title{font-family:'Playfair Display',serif;font-style:italic;font-weight:900;font-size:clamp(20px,3vw,26px);color:#1B2A4A;line-height:1.2;margin-bottom:10px;}
+.orch-sub{font-size:14px;color:#6B7280;line-height:1.7;max-width:560px;margin-bottom:24px;}
+
+/* HOW IT WORKS — 3 steps */
+.orch-steps{display:flex;flex-direction:column;gap:0;margin-bottom:26px;border:1px solid #F3F4F6;border-radius:10px;overflow:hidden;}
+.orch-step{display:flex;gap:16px;align-items:flex-start;padding:14px 18px;border-bottom:1px solid #F3F4F6;background:#FAFAFA;}
+.orch-step:last-child{border-bottom:none;}
+.orch-step-num{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.1em;color:#9CA3AF;flex-shrink:0;margin-top:2px;min-width:24px;}
+.orch-step-body{flex:1;}
+.orch-step-label{font-size:13px;font-weight:500;color:#1F2937;line-height:1.4;margin-bottom:2px;}
+.orch-step-detail{font-size:12px;color:#9CA3AF;line-height:1.5;}
+
+/* SPECIALIST ACCESS ROW */
+.orch-access{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:28px;}
+.orch-access-label{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:#9CA3AF;margin-right:4px;}
+.orch-spec-pill{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border-radius:10px;display:flex;align-items:center;gap:5px;}
+.orch-spec-pill::before{content:'';width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.orch-spec-pill.sales{background:#FEF3C7;color:#92400E;}
+.orch-spec-pill.sales::before{background:#F59E0B;}
+.orch-spec-pill.marketing{background:#D1FAE5;color:#065F46;}
+.orch-spec-pill.marketing::before{background:#0EA5A0;}
+.orch-spec-pill.operations{background:#E0E7FF;color:#3730A3;}
+.orch-spec-pill.operations::before{background:#1B2A4A;}
+.orch-route-note{font-size:11px;color:#9CA3AF;font-style:italic;}
+
+/* ORCHESTRATOR CTA */
+.orch-cta{
+  display:inline-flex;align-items:center;gap:10px;
+  background:#F59E0B;color:#000000;
+  font-family:'DM Sans',sans-serif;font-weight:600;font-size:14px;
+  padding:14px 28px;border-radius:10px;
+  text-decoration:none;
+  transition:opacity 0.15s,transform 0.15s;
+}
+.orch-cta:hover{opacity:0.92;transform:translateY(-1px);}
+.orch-cta-note{display:block;font-size:11px;color:#9CA3AF;margin-top:10px;font-family:'JetBrains Mono',monospace;letter-spacing:0.08em;}
+
+/* ─── SECTION DIVIDER ─────────────────────────────── */
+.section-divider{max-width:720px;margin:40px auto;padding:0 24px;display:flex;align-items:center;gap:16px;}
+.section-divider::before,.section-divider::after{content:'';flex:1;height:1px;background:#E5E7EB;}
+.section-divider span{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:#9CA3AF;white-space:nowrap;}
+
+/* ─── SPECIALIST CARDS ────────────────────────────── */
+.specialists-label{max-width:720px;margin:0 auto 20px;padding:0 24px;}
+.specialists-label p{font-size:13px;color:#6B7280;line-height:1.6;}
+
+.specialists-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:980px;margin:0 auto;padding:0 24px;}
+
+.specialist-card{background:#FFFFFF;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,0.06);padding:24px;display:flex;flex-direction:column;border-top:3px solid transparent;transition:box-shadow 0.2s,transform 0.2s;}
+.specialist-card:hover{box-shadow:0 4px 16px rgba(0,0,0,0.09);transform:translateY(-2px);}
+.specialist-card.sales{border-top-color:#F59E0B;}
+.specialist-card.marketing{border-top-color:#0EA5A0;}
+.specialist-card.operations{border-top-color:#1B2A4A;}
+
+.card-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;font-weight:600;font-size:15px;color:#FFFFFF;margin-bottom:14px;flex-shrink:0;}
+.card-icon.sales{background:#F59E0B;color:#000;}
+.card-icon.marketing{background:#0EA5A0;}
+.card-icon.operations{background:#1B2A4A;}
+
+.card-role{font-family:'Playfair Display',serif;font-style:italic;font-weight:700;font-size:18px;color:#1B2A4A;line-height:1.15;margin-bottom:4px;}
+.card-tagline{font-size:12px;color:#6B7280;line-height:1.5;margin-bottom:16px;}
+
+.trained-on{background:#F9FAFB;border-radius:8px;padding:12px 14px;margin-bottom:18px;}
+.trained-label{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.16em;text-transform:uppercase;color:#9CA3AF;margin-bottom:5px;}
+.trained-text{font-size:11px;color:#374151;line-height:1.6;}
+
+.topics-label{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.14em;text-transform:uppercase;color:#9CA3AF;margin-bottom:8px;}
+.topics-list{list-style:none;display:flex;flex-direction:column;gap:7px;margin-bottom:22px;flex:1;}
+.topics-list li{font-size:12px;color:#374151;line-height:1.5;display:flex;gap:8px;align-items:flex-start;}
+.topics-list li::before{content:'—';font-family:'JetBrains Mono',monospace;font-size:9px;color:#D1D5DB;flex-shrink:0;margin-top:1px;}
+
+.card-cta{display:block;width:100%;padding:11px 18px;border-radius:8px;font-family:'DM Sans',sans-serif;font-weight:600;font-size:12px;text-align:center;text-decoration:none;border:none;cursor:pointer;transition:opacity 0.15s,transform 0.15s;margin-top:auto;}
+.card-cta:hover{opacity:0.9;transform:translateY(-1px);}
+.card-cta.sales{background:#F59E0B;color:#000000;}
+.card-cta.marketing{background:#0EA5A0;color:#FFFFFF;}
+.card-cta.operations{background:#1B2A4A;color:#FFFFFF;}
+
+/* FOOTER NOTE */
+.page-note{max-width:720px;margin:32px auto 0;padding:0 24px;text-align:center;}
+.page-note p{font-size:12px;color:#9CA3AF;line-height:1.6;}
+
+/* RESPONSIVE */
+@media (max-width: 860px){
+  .specialists-grid{grid-template-columns:1fr 1fr;}
+  .specialist-card.operations{grid-column:1 / -1;}
+}
+@media (max-width: 640px){
+  .orch-inner{padding:22px 20px 26px;}
+  .orch-steps{gap:0;}
+}
+@media (max-width: 560px){
+  .specialists-grid{grid-template-columns:1fr;padding:0 16px;}
+  .specialist-card.operations{grid-column:auto;}
+  .page-header,.orch-wrap,.section-divider,.specialists-label,.page-note{padding-left:16px;padding-right:16px;}
+  .specialists-grid{padding:0 16px;}
+  .nav-center{display:none;}
+  .page-header{padding:28px 16px 24px;}
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a href="living-board.html" class="nav-back">← My board</a>
+  <span class="nav-center">Start a session</span>
+  <span class="nav-brand">PACE Board</span>
+</nav>
+
+<div class="page">
+
+  <!-- PAGE HEADER -->
+  <div class="page-header">
+    <p class="header-eyebrow">Your session</p>
+    <h1 class="header-h1">How would you like to work today?</h1>
+  </div>
+
+  <!-- ═══ MODE 1: ORCHESTRATOR ═══════════════════════════════ -->
+  <div class="orch-wrap">
+    <div class="orch-card">
+      <div class="orch-card::before"></div>
+      <div class="orch-inner">
+
+        <div class="orch-top">
+          <div>
+            <div style="margin-bottom:12px;">
+              <span class="orch-badge">Recommended</span>
+            </div>
+            <div class="orch-title">Start talking — the system figures out what you need.</div>
+          </div>
+        </div>
+
+        <p class="orch-sub">Not sure which specialist applies? Just describe what's going on in your business. PACE Board listens to your situation, identifies the type of challenge you're facing, and brings in the right specialist expertise at the right moment — or combines multiple specialists in a single conversation.</p>
+
+        <div class="orch-steps">
+          <div class="orch-step">
+            <span class="orch-step-num">01</span>
+            <div class="orch-step-body">
+              <div class="orch-step-label">You describe what's happening</div>
+              <div class="orch-step-detail">No need to categorize your problem upfront. Just talk about your business as you'd describe it to a smart advisor.</div>
+            </div>
+          </div>
+          <div class="orch-step">
+            <span class="orch-step-num">02</span>
+            <div class="orch-step-body">
+              <div class="orch-step-label">The system identifies what type of expertise applies</div>
+              <div class="orch-step-detail">A strategic orchestrator listens for patterns — is this a distribution problem? A pricing question? An operational bottleneck? — and routes accordingly.</div>
+            </div>
+          </div>
+          <div class="orch-step">
+            <span class="orch-step-num">03</span>
+            <div class="orch-step-body">
+              <div class="orch-step-label">The right specialist is activated in real time</div>
+              <div class="orch-step-detail">Sales, Marketing, or Operations frameworks are brought into the conversation as they become relevant. Multiple specialists can contribute to a single session.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="orch-access">
+          <span class="orch-access-label">Access to</span>
+          <span class="orch-spec-pill sales">Sales</span>
+          <span class="orch-spec-pill marketing">Marketing</span>
+          <span class="orch-spec-pill operations">Operations</span>
+          <span class="orch-route-note">— all routed automatically</span>
+        </div>
+
+        <a href="chat.html" class="orch-cta">Start a general session →</a>
+        <span class="orch-cta-note">Recommended for complex or unclear situations</span>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ DIVIDER ════════════════════════════════════════════ -->
+  <div class="section-divider">
+    <span>Or talk directly with a specialist</span>
+  </div>
+
+  <!-- ═══ MODE 2: DIRECT SPECIALIST SELECTION ═══════════════ -->
+  <div class="specialists-label">
+    <p>Already know what you need? Go straight to the expert. Each specialist has been trained on real frameworks and market data for their domain.</p>
+  </div>
+
+  <div class="specialists-grid">
+
+    <!-- SALES -->
+    <div class="specialist-card sales">
+      <div class="card-icon sales">S</div>
+      <div class="card-role">Sales Advisor</div>
+      <div class="card-tagline">Turn conversations into clients without pressure or guesswork.</div>
+      <div class="trained-on">
+        <div class="trained-label">Trained on</div>
+        <div class="trained-text">Sales frameworks from 1,000+ B2B and B2C companies — pricing conversations, objection handling, pipeline management, and closing methodology.</div>
+      </div>
+      <p class="topics-label">Helps with</p>
+      <ul class="topics-list">
+        <li>Pricing — and how to defend it without discounting</li>
+        <li>Building a pipeline beyond referrals</li>
+        <li>Following up and closing without feeling pushy</li>
+      </ul>
+      <a href="chat.html" class="card-cta sales">Talk with Sales Advisor →</a>
+    </div>
+
+    <!-- MARKETING -->
+    <div class="specialist-card marketing">
+      <div class="card-icon marketing">M</div>
+      <div class="card-role">Marketing Advisor</div>
+      <div class="card-tagline">Reach the right people at the right time with a message that lands.</div>
+      <div class="trained-on">
+        <div class="trained-label">Trained on</div>
+        <div class="trained-text">Marketing strategies across 50+ industries — positioning, channel selection, content that converts, and brand building at every stage.</div>
+      </div>
+      <p class="topics-label">Helps with</p>
+      <ul class="topics-list">
+        <li>Finding where your customers actually are</li>
+        <li>Positioning so the right people understand you immediately</li>
+        <li>What to say and where to say it to get first inquiries</li>
+      </ul>
+      <a href="chat.html" class="card-cta marketing">Talk with Marketing Advisor →</a>
+    </div>
+
+    <!-- OPERATIONS -->
+    <div class="specialist-card operations">
+      <div class="card-icon operations">O</div>
+      <div class="card-role">Operations Advisor</div>
+      <div class="card-tagline">Build the systems that let your business run consistently — and scale.</div>
+      <div class="trained-on">
+        <div class="trained-label">Trained on</div>
+        <div class="trained-text">Operational models from service businesses and early-stage startups — process design, delivery consistency, offer packaging, and capacity building.</div>
+      </div>
+      <p class="topics-label">Helps with</p>
+      <ul class="topics-list">
+        <li>Designing delivery that's consistent every time</li>
+        <li>Packaging your offer — tiers, formats, what's included</li>
+        <li>What to systematize first before you scale</li>
+      </ul>
+      <a href="chat.html" class="card-cta operations">Talk with Operations Advisor →</a>
+    </div>
+
+  </div>
+
+  <div class="page-note">
+    <p>Your board learns from every session — general or specialist. Over time, it builds a richer picture of your business regardless of how you choose to work.</p>
+  </div>
+
+</div>
+
+</body>
+</html>

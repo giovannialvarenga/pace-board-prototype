@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Session 1 — Cozinha da Dora</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700;1,900&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#F4F5F7;font-family:'DM Sans',sans-serif;color:#1F2937;font-size:15px;line-height:1.75;-webkit-font-smoothing:antialiased;}
+
+/* TOP NAV */
+.top-nav{position:fixed;top:0;left:0;right:0;height:52px;background:#fff;border-bottom:1px solid #E5E7EB;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 24px;}
+.nav-back{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:#6B7280;text-decoration:none;}
+.nav-back:hover{color:#1B2A4A;}
+.nav-meta{font-family:'DM Sans',sans-serif;font-weight:500;font-size:13px;color:#374151;position:absolute;left:50%;transform:translateX(-50%);}
+.nav-count{font-family:'JetBrains Mono',monospace;font-size:9px;color:#9CA3AF;}
+
+/* TAB BAR */
+.tab-bar{position:sticky;top:52px;z-index:150;background:#fff;border-bottom:1px solid #E5E7EB;display:flex;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+.tab-bar::-webkit-scrollbar{display:none;}
+.tab{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:#6B7280;padding:14px 22px;border:none;background:none;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:color 0.15s,border-color 0.15s;flex-shrink:0;}
+.tab:hover{color:#374151;}
+.tab.active{color:#1B2A4A;border-bottom-color:#0EA5A0;}
+
+/* DOCUMENT LAYOUT */
+.doc-layout{display:grid;grid-template-columns:220px 1fr;max-width:1100px;margin:0 auto;padding:0 24px;gap:0;min-height:calc(100vh - 100px);}
+
+/* TOC */
+.toc{position:sticky;top:100px;height:calc(100vh - 100px);overflow-y:auto;padding:32px 24px 32px 0;border-right:1px solid #E5E7EB;scrollbar-width:none;}
+.toc::-webkit-scrollbar{display:none;}
+.toc-label{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.16em;text-transform:uppercase;color:#9CA3AF;margin-bottom:14px;}
+.toc-list{list-style:none;display:flex;flex-direction:column;gap:2px;}
+.toc-item a{display:block;font-size:12px;color:#6B7280;text-decoration:none;padding:5px 8px;border-radius:5px;border-left:2px solid transparent;transition:all 0.15s;line-height:1.4;}
+.toc-item a:hover{color:#1B2A4A;background:#F3F4F6;}
+.toc-item a.active{color:#0EA5A0;border-left-color:#0EA5A0;background:#F0FFFE;font-weight:500;}
+.toc-doc-nav{margin-top:32px;padding-top:20px;border-top:1px solid #F3F4F6;display:flex;flex-direction:column;gap:6px;}
+.toc-doc-nav a{font-size:11px;color:#9CA3AF;text-decoration:none;padding:4px 0;}
+.toc-doc-nav a:hover{color:#6B7280;}
+.toc-doc-nav a.current{color:#1B2A4A;font-weight:500;}
+
+/* DOCUMENT PANEL */
+.doc-panel{display:none;padding:40px 0 80px 40px;}
+.doc-panel.active{display:block;}
+
+/* DOCUMENT HEADER */
+.doc-header{margin-bottom:36px;padding-bottom:24px;border-bottom:1px solid #E5E7EB;}
+.doc-eyebrow{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:#9CA3AF;margin-bottom:10px;}
+.doc-title{font-family:'Playfair Display',serif;font-style:italic;font-weight:900;font-size:clamp(28px,4vw,38px);color:#1B2A4A;line-height:1.1;margin-bottom:10px;}
+.doc-meta{font-family:'JetBrains Mono',monospace;font-size:9px;color:#9CA3AF;display:flex;gap:16px;flex-wrap:wrap;}
+.doc-specialist{display:inline-flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:#6B7280;background:#F3F4F6;padding:4px 10px;border-radius:10px;margin-top:10px;}
+
+/* DOCUMENT SECTIONS */
+.doc-section{margin-bottom:44px;}
+.doc-section:last-child{margin-bottom:0;}
+.section-heading{font-family:'Playfair Display',serif;font-style:italic;font-weight:700;font-size:22px;color:#1B2A4A;line-height:1.2;margin-bottom:16px;padding-top:8px;}
+.section-sub{font-family:'DM Sans',sans-serif;font-weight:600;font-size:14px;color:#374151;margin-bottom:8px;margin-top:20px;}
+.doc-p{font-size:15px;color:#374151;line-height:1.8;margin-bottom:14px;}
+.doc-p:last-child{margin-bottom:0;}
+strong{font-weight:600;color:#1F2937;}
+
+/* CALLOUT BOXES */
+.callout{border-left:3px solid #F59E0B;background:#FFFBEB;padding:16px 20px;border-radius:0 8px 8px 0;margin:20px 0;font-size:14px;color:#374151;line-height:1.7;}
+.callout.teal{border-left-color:#0EA5A0;background:#F0FFFE;}
+.callout.red{border-left-color:#EF4444;background:#FEF2F2;}
+.callout-label{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.14em;text-transform:uppercase;color:#9CA3AF;margin-bottom:6px;}
+
+/* DATA TABLE */
+.data-table{width:100%;border-collapse:collapse;margin:20px 0;font-size:13px;}
+.data-table th{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:#9CA3AF;text-align:left;padding:8px 12px;border-bottom:2px solid #E5E7EB;background:#F9FAFB;}
+.data-table td{padding:12px 12px;border-bottom:1px solid #F3F4F6;color:#374151;vertical-align:top;line-height:1.55;}
+.data-table tr:last-child td{border-bottom:none;}
+.data-table tr:hover td{background:#FAFAFA;}
+
+/* ASSUMPTION ITEMS */
+.assumption-item{background:#FFFFFF;border:1px solid #E5E7EB;border-radius:10px;padding:18px 20px;margin-bottom:12px;}
+.assumption-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px;}
+.assumption-text{font-size:14px;font-weight:600;color:#1F2937;line-height:1.45;flex:1;}
+.badge{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;padding:3px 9px;border-radius:10px;white-space:nowrap;flex-shrink:0;}
+.badge.hypothesis{background:#FEF3C7;color:#92400E;}
+.badge.confirmed{background:#D1FAE5;color:#065F46;}
+.badge.unknown{background:#F3F4F6;color:#6B7280;}
+.badge.risky{background:#FEE2E2;color:#991B1B;}
+.assumption-body{font-size:13px;color:#6B7280;line-height:1.6;}
+.assumption-test{font-size:12px;color:#9CA3AF;margin-top:8px;padding-top:8px;border-top:1px solid #F3F4F6;}
+.assumption-test strong{color:#6B7280;font-weight:500;}
+
+/* ACTION ITEMS */
+.action-item{border:1px solid #E5E7EB;border-radius:10px;margin-bottom:12px;overflow:hidden;}
+.action-header{display:flex;align-items:center;gap:12px;padding:14px 18px;background:#FAFAFA;border-bottom:1px solid #F3F4F6;flex-wrap:wrap;}
+.action-day{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#9CA3AF;white-space:nowrap;}
+.action-title{font-size:14px;font-weight:600;color:#1F2937;flex:1;line-height:1.4;min-width:200px;}
+.action-body{padding:14px 18px;}
+.action-why{font-size:13px;color:#6B7280;line-height:1.6;margin-bottom:10px;}
+.action-metric{font-size:12px;color:#0EA5A0;font-family:'JetBrains Mono',monospace;}
+
+/* PROMPT BLOCKS */
+.prompt-block{background:#F9FAFB;border:1px solid #E5E7EB;border-radius:10px;margin-bottom:20px;overflow:hidden;}
+.prompt-block-header{padding:12px 18px;border-bottom:1px solid #E5E7EB;display:flex;align-items:center;gap:10px;}
+.prompt-num{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.14em;text-transform:uppercase;color:#0EA5A0;}
+.prompt-name{font-size:13px;font-weight:600;color:#1F2937;}
+.prompt-text{padding:18px 20px;font-size:13px;color:#374151;line-height:1.75;font-family:'DM Sans',sans-serif;}
+.prompt-insert{color:#0EA5A0;font-style:italic;}
+.prompt-how{padding:12px 18px;background:#F0FFFE;border-top:1px solid #D1FAE5;font-size:12px;color:#065F46;line-height:1.6;}
+.prompt-how-label{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:#0EA5A0;display:block;margin-bottom:4px;}
+
+/* TENSION ITEM */
+.tension-item{padding:16px 20px;border:1px solid #E5E7EB;border-radius:10px;margin-bottom:10px;}
+.tension-title{font-size:14px;font-weight:600;color:#1F2937;margin-bottom:6px;}
+.tension-body{font-size:13px;color:#6B7280;line-height:1.6;}
+.tension-note{font-size:12px;color:#9CA3AF;margin-top:6px;font-style:italic;}
+
+/* LAYER SECTION */
+.layer-block{margin-bottom:28px;}
+.layer-label{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:0.16em;text-transform:uppercase;color:#9CA3AF;margin-bottom:10px;}
+
+/* PRINCIPLE ITEM */
+.principle-item{display:flex;gap:14px;align-items:flex-start;padding:14px 0;border-bottom:1px solid #F3F4F6;}
+.principle-item:last-child{border-bottom:none;}
+.principle-num{font-family:'JetBrains Mono',monospace;font-size:11px;color:#D1D5DB;flex-shrink:0;margin-top:2px;}
+.principle-body{flex:1;}
+.principle-title{font-size:14px;font-weight:600;color:#1F2937;margin-bottom:4px;}
+.principle-text{font-size:13px;color:#6B7280;line-height:1.6;}
+
+/* DOC NAV ARROWS */
+.doc-nav{display:flex;justify-content:space-between;align-items:center;margin-top:52px;padding-top:24px;border-top:1px solid #E5E7EB;}
+.doc-nav a{font-size:13px;color:#6B7280;text-decoration:none;}
+.doc-nav a:hover{color:#0EA5A0;}
+.doc-nav .spacer{flex:1;}
+
+/* RESPONSIVE */
+@media (max-width: 860px){
+  .doc-layout{grid-template-columns:1fr;padding:0 16px;}
+  .toc{display:none;}
+  .doc-panel{padding:32px 0 60px 0;}
+}
+@media (max-width: 560px){
+  .tab{padding:12px 14px;font-size:12px;}
+  .nav-meta{display:none;}
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a href="living-board.html" class="nav-back">← Back to board</a>
+  <span class="nav-meta">Session 1 · May 18, 2026</span>
+  <span class="nav-count">5 documents</span>
+</nav>
+
+<div class="tab-bar" role="tablist">
+  <button class="tab active" data-doc="1" role="tab">Problem Analysis</button>
+  <button class="tab" data-doc="2" role="tab">Business Map</button>
+  <button class="tab" data-doc="3" role="tab">Strategic Stance</button>
+  <button class="tab" data-doc="4" role="tab">Action Plan</button>
+  <button class="tab" data-doc="5" role="tab">AI Prompts</button>
+</div>
+
+<div class="doc-layout">
+
+  <nav class="toc" id="toc" aria-label="Document outline"></nav>
+
+  <!-- DOC 1 — PROBLEM ANALYSIS -->
+  <article class="doc-panel active" id="doc-1" role="tabpanel">
+    <div class="doc-header">
+      <div class="doc-eyebrow">Document 1 of 5 · Session 1</div>
+      <h1 class="doc-title">Problem Analysis</h1>
+      <div class="doc-meta"><span>Generated May 18, 2026</span><span>Cozinha da Dora</span><span>Strategist · PACE Board</span></div>
+      <div class="doc-specialist">Strategist Advisor · Full Session Analysis</div>
+    </div>
+
+    <div class="doc-section" id="d1-s1">
+      <h2 class="section-heading">Core Finding</h2>
+      <p class="doc-p">Your business has a <strong>distribution problem, not a product problem.</strong> The evidence is clear: every client who has hired you has returned or sent someone else. That pattern — consistent return and referral — means the product experience creates loyalty. The work is good. What isn't working is how new people find out the work exists.</p>
+      <p class="doc-p">The current acquisition model is entirely closed-loop: each new client arrives through someone who already knows you. This makes growth linear at best and invisible at worst. It creates a specific fragility — if the referral network goes quiet (seasonal, personal), the pipeline goes to zero. There is no discovery channel operating independently of your existing relationships.</p>
+      <div class="callout">
+        <div class="callout-label">The distinction that matters</div>
+        Product problems are fixed by changing what you deliver. Distribution problems are fixed by changing who sees it. These require completely different interventions — and misdiagnosing one as the other is the most common reason founders spend six months improving the wrong thing.
+      </div>
+    </div>
+
+    <div class="doc-section" id="d1-s2">
+      <h2 class="section-heading">Assumptions You're Treating as Facts</h2>
+      <p class="doc-p">The following beliefs are shaping your decisions right now. None have been tested. Each is actionable — you can design a specific experiment to find out if it's true before committing resources to it.</p>
+
+      <div class="assumption-item">
+        <div class="assumption-header"><div class="assumption-text">Instagram content will bring customers who don't already know me</div><span class="badge risky">High risk</span></div>
+        <div class="assumption-body">You've been posting consistently, but "posting" and "reaching new people" are not the same thing. Instagram's algorithm distributes to existing followers and their second-degree network — not cold audiences — unless you're using paid reach, location tags, or content that gets shared outside your network.</div>
+        <div class="assumption-test"><strong>How to test it:</strong> Post one piece of content with a specific geographic hashtag and a clear CTA. After 7 days, count how many profile visits or DMs came from accounts with zero mutual connections. Under 3 = Instagram organic is not a discovery channel for you yet.</div>
+      </div>
+
+      <div class="assumption-item">
+        <div class="assumption-header"><div class="assumption-text">R$200–350 per service is the right price range</div><span class="badge hypothesis">Untested hypothesis</span></div>
+        <div class="assumption-body">This price was likely set on intuition. Private chef services in comparable Brazilian markets range from R$180 to R$600 per session depending on specialization, occasion type, and perceived positioning. You may be underpriced — or priced for a different customer than the one you're targeting.</div>
+        <div class="assumption-test"><strong>How to test it:</strong> In your next 3 referral conversations, present two pricing options — current price and a 30% higher version with premium framing. Track which generates more questions. Resistance to higher price is always informative.</div>
+      </div>
+
+      <div class="assumption-item">
+        <div class="assumption-header"><div class="assumption-text">Referrals are my only working acquisition channel</div><span class="badge unknown">Not yet determined</span></div>
+        <div class="assumption-body">This feels true, but you haven't tried enough alternatives to confirm it. You've tested Instagram content (inconclusive) and one Facebook group post. The hypothesis space is wider: neighborhood WhatsApp groups, local food bloggers, catering app listings, partnerships with event planners, Google Business Profile, direct outreach to condominium administrators.</div>
+        <div class="assumption-test"><strong>How to test it:</strong> Run three channel experiments in parallel over 14 days. Measure inquiry volume per channel. One experiment with real effort beats ten assumptions.</div>
+      </div>
+
+      <div class="assumption-item">
+        <div class="assumption-header"><div class="assumption-text">People hire private chefs primarily for special occasions</div><span class="badge hypothesis">Untested hypothesis</span></div>
+        <div class="assumption-body">If true, this shapes everything: positioning, pricing, seasonal strategy, content. If false — if the real customer wants weekly home cooking — you're building for the wrong trigger. These are two fundamentally different businesses with different economics, channels, and messaging.</div>
+        <div class="assumption-test"><strong>How to test it:</strong> Ask your next 5 clients one question before or after the service: "What made you decide to hire a private chef for this specific occasion?" Record exact words. Five conversations will start to show patterns.</div>
+      </div>
+    </div>
+
+    <div class="doc-section" id="d1-s3">
+      <h2 class="section-heading">Real Bottleneck vs. Loudest Urgency</h2>
+      <div class="callout teal"><div class="callout-label">The loudest urgency</div>"I need more clients." This is what feels most pressing. It's also the least actionable framing — it points to a symptom, not a cause.</div>
+      <div class="callout"><div class="callout-label">The real bottleneck</div>Your customer acquisition surface is invisible to anyone outside your existing network. The bottleneck isn't effort — you're posting, cooking, delivering quality. The bottleneck is that none of this activity is visible to people who don't already know you exist. You need one working discovery channel before you need more clients.</div>
+      <p class="doc-p">The distinction matters because "get more clients" leads to random effort. "Build one working discovery channel" leads to a specific, testable experiment. Once a single external channel works — even at low volume — it becomes the foundation for everything else.</p>
+    </div>
+
+    <div class="doc-section" id="d1-s4">
+      <h2 class="section-heading">Market Context</h2>
+      <p class="doc-p">The personal chef market in Brazil is at an early growth stage. Demand signals are increasing — interest in personalized food experiences, remote work normalizing home-based spending, post-COVID shift toward hosting at home. Supply is fragmented and mostly informal. There is no dominant platform or brand that owns the category the way iFood owns delivery.</p>
+      <table class="data-table">
+        <thead><tr><th>Signal</th><th>What it means for you</th><th>Implication</th></tr></thead>
+        <tbody>
+          <tr><td>Market is early and fragmented</td><td>No established player to benchmark against or be compared to</td><td>You define the category in your geography</td></tr>
+          <tr><td>No dominant discovery platform</td><td>Clients can't easily find private chefs — even when they want one</td><td>Whoever becomes visible first wins disproportionately</td></tr>
+          <tr><td>High trust barrier to purchase</td><td>Letting someone into your home is a high-stakes decision</td><td>Social proof (referrals, reviews, real faces) dramatically reduces friction</td></tr>
+          <tr><td>Seasonal demand peaks</td><td>Acquisition cost is lower when demand is high (year-end, holidays)</td><td>Build audience now; convert in season</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="doc-section" id="d1-s5">
+      <h2 class="section-heading">Leverage Points</h2>
+      <div class="section-sub">1. Activate the referral network explicitly</div>
+      <p class="doc-p">Your referral channel works — but it's passive. Clients refer you when the topic comes up naturally. There is zero evidence you've asked for referrals directly. A direct ask to your last 10 clients is the highest-ROI action available right now. Referrals are your fastest path to the first 10 external customers — and currently nobody is activating them on purpose.</p>
+      <div class="section-sub">2. Build geography-first visibility</div>
+      <p class="doc-p">Private chef services are inherently local. Geographic concentration — one neighborhood at a time — is more efficient than broadcasting. Posting in a local residents' WhatsApp group converts better than a general Instagram post because the audience is both qualified (they live nearby) and closed (you're one of few vendors in their feed).</p>
+      <div class="section-sub">3. Create social proof that travels</div>
+      <p class="doc-p">A 60-second video of a meal being prepared in a client's real home — with the client saying one sentence at the end — does three things simultaneously: shows the product in context, provides social proof from a real person, and creates shareable content that clients can send to friends. This is the single piece of content most worth creating first.</p>
+    </div>
+
+    <div class="doc-section" id="d1-s6">
+      <h2 class="section-heading">Open Questions</h2>
+      <table class="data-table">
+        <thead><tr><th>Question</th><th>Why it matters</th><th>Risk if ignored</th></tr></thead>
+        <tbody>
+          <tr><td>What triggers the decision to hire a private chef?</td><td>Changes everything about positioning, channel, and messaging</td><td>Marketing wrong trigger = zero conversion</td></tr>
+          <tr><td>What does a client tell their friends when they recommend you?</td><td>This is your word-of-mouth script — you should be amplifying it</td><td>Referrals stay random instead of deliberate</td></tr>
+          <tr><td>Is there a recurring use case or is it always occasional?</td><td>Recurring clients = completely different business economics</td><td>You may be ignoring your most valuable customer type</td></tr>
+          <tr><td>What does it feel like to hire a private chef for the first time?</td><td>Understanding pre-purchase emotional state tells you what content and language to use</td><td>Messaging misses the actual anxiety your future client has</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="doc-nav"><span class="spacer"></span><a href="#" data-goto="2">Business Map →</a></div>
+  </article>
+
+  <!-- DOC 2 — BUSINESS MAP -->
+  <article class="doc-panel" id="doc-2" role="tabpanel">
+    <div class="doc-header">
+      <div class="doc-eyebrow">Document 2 of 5 · Session 1</div>
+      <h1 class="doc-title">Business Map</h1>
+      <div class="doc-meta"><span>Generated May 18, 2026</span><span>Cozinha da Dora</span></div>
+      <div class="doc-specialist">5-layer map of your business reality — as it exists today, not as planned</div>
+    </div>
+
+    <div class="doc-section" id="d2-s1">
+      <h2 class="section-heading">Layer 1 — External Forces</h2>
+      <div class="layer-block"><div class="layer-label">Market dynamics</div><p class="doc-p">The personal chef market in Brazil is pre-consolidation. No platform dominates. Demand is real and growing — driven by urbanization, higher household income in upper-middle segments, and a post-COVID preference for curated home experiences. The absence of a dominant player is your opportunity window, and it is closing as the category matures.</p></div>
+      <div class="layer-block"><div class="layer-label">Competition</div><p class="doc-p">Direct competitors are informal and local: home cooks with Instagram presence, catering services that also offer private sessions. None compete directly on the "I come to your home and cook a fresh meal" experience. Indirect competitors include restaurants (for special occasions), meal kit delivery (for regular cooking), and doing nothing. The most common competitive response isn't "we use someone else" — it's "we haven't thought about it."</p></div>
+      <div class="layer-block"><div class="layer-label">Macro trends working in your favor</div><p class="doc-p">Remote and hybrid work has normalized premium home spending. "Experience economy" preferences continue shifting from objects to memories. Food content is the highest-performing category on every major social platform. Trust in hyperlocal, personalized services is increasing relative to mass-market alternatives.</p></div>
+      <div class="layer-block"><div class="layer-label">Environmental risks</div><p class="doc-p">Economic contraction compresses discretionary spending — private chef services risk being reclassified from "normal" to "luxury" in household budget reviews. Regulatory ambiguity around informal food services (ANVISA compliance, CNPJ requirements) creates legal uncertainty that could become a growth barrier at scale.</p></div>
+    </div>
+
+    <div class="doc-section" id="d2-s2">
+      <h2 class="section-heading">Layer 2 — Operational System</h2>
+      <p class="doc-p">How the business actually runs today — not the ideal version, the real one.</p>
+      <table class="data-table">
+        <thead><tr><th>Area</th><th>Current state</th><th>Constraint</th></tr></thead>
+        <tbody>
+          <tr><td>Revenue model</td><td>Per-session billing, per client request</td><td>Revenue = time. No leverage. No recurring contract.</td></tr>
+          <tr><td>Capacity</td><td>Solo operator. Physical limit ~5–6 sessions/week</td><td>Growth hits a hard ceiling without structural changes</td></tr>
+          <tr><td>Acquisition</td><td>100% word-of-mouth, zero outbound</td><td>Growth depends on a passive, uncontrolled channel</td></tr>
+          <tr><td>Pricing</td><td>R$200–350 range, case-by-case</td><td>No tiered structure. No package pricing. No upsell path.</td></tr>
+          <tr><td>Documentation</td><td>None. No client history, preferences, or notes.</td><td>Every engagement starts from zero. No compound value.</td></tr>
+          <tr><td>Marketing</td><td>Instagram posts (inconsistent). No other channel.</td><td>Zero systematic effort to build audience outside network.</td></tr>
+        </tbody>
+      </table>
+      <div class="callout"><div class="callout-label">What this tells us</div>This is a solo service business operating at the limits of what one person can do without systems. The revenue ceiling is already visible. The question is not "how do I get more clients" but "what structure do I need before more clients become sustainable?"</div>
+    </div>
+
+    <div class="doc-section" id="d2-s3">
+      <h2 class="section-heading">Layer 3 — Relational Dynamics</h2>
+      <div class="layer-block"><div class="layer-label">Key relationships</div><p class="doc-p">Dora knows every client personally — by name, preference, occasion history. This is unusual and valuable. It creates genuine loyalty and word-of-mouth, but it also means the business is entirely personality-dependent. The product and the person are not yet separable.</p></div>
+      <div class="layer-block"><div class="layer-label">Trust dynamics</div><p class="doc-p">The primary trust signal for new clients is a referral from someone they already trust. This works — but it caps the addressable market to the second-degree network. The second trust signal (which doesn't yet exist) would be visible social proof from real clients that a stranger can encounter without knowing them personally.</p></div>
+      <div class="layer-block"><div class="layer-label">Dependencies</div><p class="doc-p">Current business continuity depends entirely on Dora's physical presence and personal relationships. One illness, one conflict with a key referrer, or one bad review in the network can stop revenue completely. There is no backup, no team, no documented process that would allow even partial continuity without Dora.</p></div>
+    </div>
+
+    <div class="doc-section" id="d2-s4">
+      <h2 class="section-heading">Layer 4 — Complexity per Initiative</h2>
+      <table class="data-table">
+        <thead><tr><th>Initiative</th><th>Domain</th><th>Right approach</th></tr></thead>
+        <tbody>
+          <tr><td>Delivering quality in-home sessions</td><td>Predictable — you know what good looks like</td><td>Execute consistently. Build a checklist. Don't experiment with what's working.</td></tr>
+          <tr><td>Finding first external acquisition channel</td><td>Complex — outcome uncertain, multiple variables, no proven path</td><td>Run small, fast experiments. Multiple channels in parallel. Measure rigorously.</td></tr>
+          <tr><td>Pricing strategy</td><td>Complicated — right answers exist, but you need information you don't have</td><td>Research comparable services. Talk to 5 potential clients. Make an informed decision.</td></tr>
+          <tr><td>Building recurring client relationships</td><td>Simple — you know how. You haven't formalized it.</td><td>Design a follow-up sequence. Offer a recurring package. Don't over-engineer.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="doc-section" id="d2-s5">
+      <h2 class="section-heading">Layer 5 — Active Tensions</h2>
+      <div class="tension-item"><div class="tension-title">Personal relationship vs. scalable reach</div><div class="tension-body">The thing that makes Cozinha da Dora work is Dora's personal touch — every client feels known. But personal relationship doesn't scale without structure. Building reach risks making the brand feel impersonal, which destroys the core value proposition.</div><div class="tension-note">Hold it by: growing slowly, keeping client relationships personal even as the audience grows. Don't automate what makes people feel seen.</div></div>
+      <div class="tension-item"><div class="tension-title">Validation mode vs. growth mode</div><div class="tension-body">Right now the business needs to prove that external acquisition works before investing in operations to support growth. But every new client creates pressure to deliver — taking time away from experiments. Moving too fast into execution before validation is a common failure mode.</div><div class="tension-note">Hold it by: limiting new client volume intentionally during the 14-day experiment phase.</div></div>
+      <div class="tension-item"><div class="tension-title">Accessible price vs. premium experience</div><div class="tension-body">The current price range positions the service as accessible. But the experience — a chef in your home, cooking just for you — is inherently premium. This tension may mean you're attracting the wrong customer and undercharging the right one.</div><div class="tension-note">Hold it by: testing price sensitivity before changing anything. What feels too expensive to you may feel correct to your ideal client.</div></div>
+    </div>
+
+    <div class="doc-nav"><a href="#" data-goto="1">← Problem Analysis</a><a href="#" data-goto="3">Strategic Stance →</a></div>
+  </article>
+
+  <!-- DOC 3 — STRATEGIC STANCE -->
+  <article class="doc-panel" id="doc-3" role="tabpanel">
+    <div class="doc-header">
+      <div class="doc-eyebrow">Document 3 of 5 · Session 1</div>
+      <h1 class="doc-title">Strategic Stance</h1>
+      <div class="doc-meta"><span>Generated May 18, 2026</span><span>Cozinha da Dora</span></div>
+      <div class="doc-specialist">How your company sees its market, customer, and competitive position</div>
+    </div>
+
+    <div class="doc-section" id="d3-s1">
+      <h2 class="section-heading">Who You Are For</h2>
+      <p class="doc-p">Cozinha da Dora is for people who want a meal that feels like it was made by someone who knows them — not a restaurant experience brought home, but a genuinely personal cooking experience in their own space.</p>
+      <p class="doc-p">The client is not buying food. They are buying the absence of effort, the presence of attention, and the feeling of being taken care of. The product is an experience of intimacy — someone skilled enough to be trusted in your kitchen, cooking something that belongs to your occasion, not a standardized menu.</p>
+    </div>
+
+    <div class="doc-section" id="d3-s2">
+      <h2 class="section-heading">The Anti-Positioning</h2>
+      <div class="callout"><div class="callout-label">Cozinha da Dora is not</div>A catering service. Not event-based at scale. Not a luxury product for the wealthy. Not meal prep delivery. Not a cooking class. Not a restaurant experience. Not a status symbol requiring a price point that signals exclusivity.</div>
+      <p class="doc-p">Each anti-positioning matters because they attract different customers, occasions, and price points. When someone sees your content and thinks "that's a catering service," you've lost them. When they think "that's someone I'd want in my kitchen," you've found your customer.</p>
+    </div>
+
+    <div class="doc-section" id="d3-s3">
+      <h2 class="section-heading">How You See Your Customer</h2>
+      <div class="assumption-item"><div class="assumption-header"><div class="assumption-text">They value personalization over standardization</div><span class="badge confirmed">Core belief</span></div><div class="assumption-body">They pay more for things that feel made for them. They already have patterns of this: tailored clothing, curated travel, personal trainers. A private chef fits naturally into their worldview.</div></div>
+      <div class="assumption-item"><div class="assumption-header"><div class="assumption-text">They host — or want to host — but cooking is a barrier</div><span class="badge confirmed">Core belief</span></div><div class="assumption-body">Hosting a dinner where you also cook is exhausting. The private chef removes the cooking burden while keeping the intimacy of a home gathering. This is the most common use case in your existing client base.</div></div>
+      <div class="assumption-item"><div class="assumption-header"><div class="assumption-text">They make decisions based on trust, not price</div><span class="badge confirmed">Core belief</span></div><div class="assumption-body">Letting someone into your home to cook requires high trust. They will not hire someone they haven't heard of from someone they trust. This is why referrals are your primary channel — not because you haven't tried other things, but because this is how this customer decides.</div></div>
+    </div>
+
+    <div class="doc-section" id="d3-s4">
+      <h2 class="section-heading">Your Competitive Edge</h2>
+      <p class="doc-p">Your competitive edge is not the food. Any skilled chef can cook well. Your edge is the trust that Dora personally generates — clients know they're dealing with a person, not a brand. The experience feels like hiring a friend who is also an expert.</p>
+      <div class="callout teal"><div class="callout-label">The edge you haven't activated yet</div>Existing clients who describe their experience to a friend are your most powerful marketing asset. That word-of-mouth is unscripted and authentic — exactly what converts a skeptical new client. You haven't given them a reason or structure to share it deliberately.</div>
+    </div>
+
+    <div class="doc-section" id="d3-s5">
+      <h2 class="section-heading">Decision Principles</h2>
+      <div class="principle-item"><div class="principle-num">01</div><div class="principle-body"><div class="principle-title">Depth of relationship over breadth of reach</div><div class="principle-text">One deeply satisfied client who talks about you is worth ten passive social followers. Invest in quality of existing relationships before expanding quantity of new ones.</div></div></div>
+      <div class="principle-item"><div class="principle-num">02</div><div class="principle-body"><div class="principle-title">Test before committing</div><div class="principle-text">Every channel, pricing tier, and format gets a small test before a real investment. Don't spend two months building something you haven't validated works in two weeks.</div></div></div>
+      <div class="principle-item"><div class="principle-num">03</div><div class="principle-body"><div class="principle-title">Don't fix what's working</div><div class="principle-text">The product experience is working. Focus energy on distribution — which is not working — without touching the things that are.</div></div></div>
+      <div class="principle-item"><div class="principle-num">04</div><div class="principle-body"><div class="principle-title">Say no to clients who don't fit</div><div class="principle-text">At this stage, every bad-fit client takes time and calendar space that could go to a good-fit client. A client who negotiates price or disrespects your time will cost more than the revenue they bring.</div></div></div>
+      <div class="principle-item"><div class="principle-num">05</div><div class="principle-body"><div class="principle-title">The business should feel better as it grows, not worse</div><div class="principle-text">If getting more clients makes the work feel heavier, something is wrong with the structure — not the growth. Build systems before the load becomes unmanageable.</div></div></div>
+    </div>
+
+    <div class="doc-nav"><a href="#" data-goto="2">← Business Map</a><a href="#" data-goto="4">Action Plan →</a></div>
+  </article>
+
+  <!-- DOC 4 — ACTION PLAN -->
+  <article class="doc-panel" id="doc-4" role="tabpanel">
+    <div class="doc-header">
+      <div class="doc-eyebrow">Document 4 of 5 · Session 1</div>
+      <h1 class="doc-title">Action Plan</h1>
+      <div class="doc-meta"><span>Generated May 18, 2026</span><span>Cozinha da Dora</span></div>
+      <div class="doc-specialist">Validation mode · 14-day plan · May 18 – June 1, 2026</div>
+    </div>
+
+    <div class="doc-section" id="d4-s1">
+      <h2 class="section-heading">Your Focus Initiative</h2>
+      <div class="callout teal"><div class="callout-label">The one thing this plan is trying to prove</div>That at least one paying customer exists who has no prior connection to Dora — found through a channel that can be repeated.</div>
+      <p class="doc-p">This is a validation plan, not a growth plan. The goal is not to acquire 10 new clients in 14 days. The goal is to prove that a single external acquisition channel works before committing time and money to it at scale. Success is one inquiry from a stranger. Everything else is a bonus.</p>
+      <p class="doc-p">Why validation first: if you run three months of content without a working channel test, you have three months of effort and no learning. If you run 14 days of channel experiments, you have a clear answer and a foundation to build on.</p>
+    </div>
+
+    <div class="doc-section" id="d4-s2">
+      <h2 class="section-heading">Day 1–7: Activate What Already Works</h2>
+
+      <div class="action-item">
+        <div class="action-header"><span class="action-day">Day 1–2</span><span class="badge confirmed">F — Referrals work</span><div class="action-title">Message every past client directly and ask for a referral</div></div>
+        <div class="action-body"><div class="action-why">Write one message. Send it to every client from the past 6 months: "I'm trying to grow my client list. Do you know anyone who would love having a private chef? I'd really appreciate an introduction." Direct, honest, specific. Don't hint — ask.</div><div class="action-metric">Measure: responses, introductions made, conversations started</div></div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-header"><span class="action-day">Day 2–3</span><span class="badge hypothesis">H — Video creates trust faster than photos</span><div class="action-title">Film a 60-second cooking video at a client's home</div></div>
+        <div class="action-body"><div class="action-why">Ask your next client for permission to film. One unedited, authentic 60-second video — the cooking, the setting, the real home. At the end, ask the client to say one sentence: why they hired you, or what the experience was like. This is your social proof asset. Everything else depends on having this.</div><div class="action-metric">Measure: reach, DMs from non-followers, saves and shares</div></div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-header"><span class="action-day">Day 3–4</span><span class="badge hypothesis">H — Neighborhood WhatsApp converts better than Instagram</span><div class="action-title">Post in one neighborhood residents' group</div></div>
+        <div class="action-body"><div class="action-why">Pick the neighborhood where you work most or where your best clients live. Find the residents' WhatsApp group. Write a simple, honest message — who you are, what you do, that you're looking for new clients in this area. No hard sell.</div><div class="action-metric">Measure: direct inquiries from the group within 48 hours</div></div>
+      </div>
+    </div>
+
+    <div class="doc-section" id="d4-s3">
+      <h2 class="section-heading">Day 8–14: Test External Channels</h2>
+
+      <div class="action-item">
+        <div class="action-header"><span class="action-day">Day 8–10</span><span class="badge hypothesis">H — Local food bloggers have the right audience</span><div class="action-title">Contact 3 local food or lifestyle micro-influencers</div></div>
+        <div class="action-body"><div class="action-why">Find 3 Instagram accounts in your city with 1,000–15,000 followers focused on food, home, or lifestyle. Offer a complimentary cooking session in exchange for a genuine post or story. You're not paying for advertising — you're offering a real experience to someone with an audience that resembles your ideal client.</div><div class="action-metric">Measure: who responded, who posted, follower gain, inquiry spike within 72 hours of post</div></div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-header"><span class="action-day">Day 10–12</span><span class="badge hypothesis">H — Google is underused for personal chef discovery</span><div class="action-title">Set up and optimize Google Business Profile</div></div>
+        <div class="action-body"><div class="action-why">Many people search "private chef [city name]" on Google before going to Instagram. A Google Business Profile with real client reviews is highly visible in local search. Set it up, add 3 photos, ask 3 past clients to leave a review. Takes 2 hours and compounds indefinitely.</div><div class="action-metric">Measure: profile views, calls from profile within 30 days</div></div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-header"><span class="action-day">Day 12–14</span><span class="badge hypothesis">H — Event platforms have high-intent buyers</span><div class="action-title">List on one curated experience platform</div></div>
+        <div class="action-body"><div class="action-why">Platforms like Airbnb Experiences or Sympla have audiences actively searching for curated experiences. Create one listing: a "private dinner experience" at a fixed price. This tests whether high-intent searchers convert differently than social discovery.</div><div class="action-metric">Measure: views, saves, inquiries, bookings within 30 days</div></div>
+      </div>
+    </div>
+
+    <div class="doc-section" id="d4-s4">
+      <h2 class="section-heading">Success Criteria</h2>
+      <table class="data-table">
+        <thead><tr><th>Outcome</th><th>Threshold</th><th>Interpretation</th></tr></thead>
+        <tbody>
+          <tr><td>Inquiries from people with no prior connection to Dora</td><td>1 or more</td><td>External acquisition is possible. Scale the channel that produced it.</td></tr>
+          <tr><td>At least one channel produces measurable signals</td><td>1 channel with 3+ data points</td><td>You have a starting hypothesis for where to invest next.</td></tr>
+          <tr><td>Referral activation produces new conversations</td><td>2+ responses from past clients</td><td>Referral channel is active. Build a recurring activation system.</td></tr>
+          <tr><td>Video content reaches outside existing followers</td><td>10%+ of views from non-followers</td><td>Content has distribution potential. Produce more of the same format.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="doc-section" id="d4-s5">
+      <h2 class="section-heading">Pivot Conditions</h2>
+      <div class="callout red"><div class="callout-label">Stop condition</div>If you reach Day 14 with zero inquiries from outside your network: stop the channel experiments and run 5 customer interviews instead. The problem is likely messaging, not channel. You need to understand what trigger actually makes someone want a private chef before testing more distribution.</div>
+      <p class="doc-p">Pivot A: If referral activation works but external channels don't — build a structured referral program instead of investing in new acquisition channels. A closed network that compounds is more valuable than a broken open network.</p>
+      <p class="doc-p">Pivot B: If Google produces more signals than Instagram — redirect all content effort to SEO and Google reviews. Some businesses don't need social media. Yours may be one of them.</p>
+    </div>
+
+    <div class="doc-nav"><a href="#" data-goto="3">← Strategic Stance</a><a href="#" data-goto="5">AI Prompts →</a></div>
+  </article>
+
+  <!-- DOC 5 — AI PROMPTS -->
+  <article class="doc-panel" id="doc-5" role="tabpanel">
+    <div class="doc-header">
+      <div class="doc-eyebrow">Document 5 of 5 · Session 1</div>
+      <h1 class="doc-title">AI Prompts</h1>
+      <div class="doc-meta"><span>Generated May 18, 2026</span><span>Cozinha da Dora</span></div>
+      <div class="doc-specialist">Paste into Claude, ChatGPT, or any AI tool — ready to use</div>
+    </div>
+
+    <div class="doc-section" id="d5-s0">
+      <h2 class="section-heading">How to Use These Prompts</h2>
+      <p class="doc-p">Each prompt below has your business context already embedded. You don't need to explain who you are or what you do — that's in the prompt. Paste it directly into Claude or ChatGPT, fill in the bracketed sections with your real information, and run it.</p>
+      <div class="callout teal"><div class="callout-label">Best used in this order</div>Start with Prompt 1 (positioning) to get language clarity. Then Prompt 2 (content) for what to say. Use Prompt 3 (customer interview) before making any major changes to your offer or channel strategy.</div>
+    </div>
+
+    <div class="doc-section" id="d5-s1">
+      <h2 class="section-heading">Prompt 1 — Positioning Statement</h2>
+      <div class="prompt-block">
+        <div class="prompt-block-header"><span class="prompt-num">Prompt 1</span><span class="prompt-name">Write a positioning statement for Instagram and word-of-mouth</span></div>
+        <div class="prompt-text">I run a private chef service called Cozinha da Dora. I go to clients' homes and cook fresh meals for them — for special occasions like dinners and celebrations, and for clients who want regular home cooking handled by someone they trust.<br><br>My clients describe the experience as: <span class="prompt-insert">[INSERT 2–3 words or phrases your real clients have used — e.g., "like having a friend who's a great cook", "the food felt personal", "I didn't have to worry about anything"]</span><br><br>I'm NOT a catering service, NOT a delivery meal kit, NOT a restaurant. I'm a person, not a brand. My competitive edge is trust — every client knows they're dealing with Dora directly.<br><br>Write me 3 different 2-sentence positioning statements. Each should speak to a different trigger: (1) the person hosting a dinner party, (2) the person who wants regular home cooking without the effort, (3) the person gifting a unique experience. Make each conversational, not corporate. Avoid "culinary", "artisanal", "bespoke", or "elevated."</div>
+        <div class="prompt-how"><span class="prompt-how-label">How to use this output</span>Take the version that resonates most. Test it as your Instagram bio for 2 weeks. The one that gets the best response in conversation is your real positioning.</div>
+      </div>
+    </div>
+
+    <div class="doc-section" id="d5-s2">
+      <h2 class="section-heading">Prompt 2 — Content That Reaches Strangers</h2>
+      <div class="prompt-block">
+        <div class="prompt-block-header"><span class="prompt-num">Prompt 2</span><span class="prompt-name">Write Instagram captions for a cooking video that converts strangers</span></div>
+        <div class="prompt-text">I'm posting a 60-second cooking video filmed at a client's home. In the video: I'm cooking a full meal in their kitchen, and at the end the client says one sentence about the experience. The setting is real and intimate — not a studio, not a restaurant.<br><br>My target viewer is someone who doesn't know me yet, lives in <span class="prompt-insert">[INSERT your city or neighborhood]</span>, and has either hosted a dinner party where they also had to cook (exhausting), or has thought about doing something special for a meal occasion but didn't know where to start.<br><br>Write 3 different captions. Each should:<br>— Start with the first line doing the work (no "hey guys" or generic openers)<br>— Be under 150 words<br>— End with one clear action (follow, DM, visit link in bio)<br>— Sound like a real person, not a brand<br>— Not use "passionate" or "love for food"<br><br>Version 1: speaks to the occasion trigger. Version 2: the effort trigger. Version 3: the gift trigger.</div>
+        <div class="prompt-how"><span class="prompt-how-label">How to use this output</span>Post each version in a different week. Check which drives DMs from people who don't already follow you. That's your message-market fit signal.</div>
+      </div>
+    </div>
+
+    <div class="doc-section" id="d5-s3">
+      <h2 class="section-heading">Prompt 3 — Customer Discovery Interview</h2>
+      <div class="prompt-block">
+        <div class="prompt-block-header"><span class="prompt-num">Prompt 3</span><span class="prompt-name">Generate a customer interview guide for understanding why people hire a private chef</span></div>
+        <div class="prompt-text">I'm a private chef who goes to clients' homes. I want to interview 5 people who have hired or considered hiring a private chef — to understand what triggered their decision, what made them hesitate, and how they describe the experience to others.<br><br>Interview profile: people who (a) have hosted dinner parties at home, (b) have used a personal chef at least once, or (c) have looked for one but didn't hire. Ideally a mix of all three.<br><br>Write me a 20-minute interview guide with:<br>— 8 questions in the order I should ask them<br>— For each question: the purpose (what I'm trying to learn), and a follow-up probe if the answer is too short<br>— 2 questions specifically about how they described the experience to someone else (word-of-mouth language)<br>— 1 question about price sensitivity that doesn't feel like I'm asking about price<br><br>Format it so I can read it during the interview. Plain language, no jargon.</div>
+        <div class="prompt-how"><span class="prompt-how-label">How to use this output</span>Run the interview with 3–5 people before changing your pricing, messaging, or channel strategy. The language clients use to describe the experience is your marketing copy. Write it down verbatim.</div>
+      </div>
+    </div>
+
+    <div class="doc-nav"><a href="#" data-goto="4">← Action Plan</a><span class="spacer"></span></div>
+  </article>
+
+</div>
+
+<script>
+(function(){
+  var tocs={
+    1:[{id:'d1-s1',label:'Core Finding'},{id:'d1-s2',label:'Assumptions Treated as Facts'},{id:'d1-s3',label:'Bottleneck vs. Urgency'},{id:'d1-s4',label:'Market Context'},{id:'d1-s5',label:'Leverage Points'},{id:'d1-s6',label:'Open Questions'}],
+    2:[{id:'d2-s1',label:'Layer 1 — External Forces'},{id:'d2-s2',label:'Layer 2 — Operational System'},{id:'d2-s3',label:'Layer 3 — Relational Dynamics'},{id:'d2-s4',label:'Layer 4 — Complexity per Initiative'},{id:'d2-s5',label:'Layer 5 — Active Tensions'}],
+    3:[{id:'d3-s1',label:'Who You Are For'},{id:'d3-s2',label:'The Anti-Positioning'},{id:'d3-s3',label:'How You See Your Customer'},{id:'d3-s4',label:'Your Competitive Edge'},{id:'d3-s5',label:'Decision Principles'}],
+    4:[{id:'d4-s1',label:'Your Focus Initiative'},{id:'d4-s2',label:'Day 1–7: Activate What Works'},{id:'d4-s3',label:'Day 8–14: Test External Channels'},{id:'d4-s4',label:'Success Criteria'},{id:'d4-s5',label:'Pivot Conditions'}],
+    5:[{id:'d5-s0',label:'How to Use These Prompts'},{id:'d5-s1',label:'Prompt 1 — Positioning'},{id:'d5-s2',label:'Prompt 2 — Content for Strangers'},{id:'d5-s3',label:'Prompt 3 — Customer Interview'}]
+  };
+  var docNames={1:'Problem Analysis',2:'Business Map',3:'Strategic Stance',4:'Action Plan',5:'AI Prompts'};
+  var tocEl=document.getElementById('toc');
+  var tabs=document.querySelectorAll('.tab');
+  var panels=document.querySelectorAll('.doc-panel');
+  var activeDoc=1;
+
+  function renderToc(n){
+    var items=tocs[n];
+    var h='<p class="toc-label">In this document</p><ul class="toc-list">';
+    items.forEach(function(i){h+='<li class="toc-item"><a href="#'+i.id+'">'+i.label+'</a></li>';});
+    h+='</ul><div class="toc-doc-nav">';
+    for(var i=1;i<=5;i++){h+='<a href="#" data-goto="'+i+'"'+(i===n?' class="current"':'')+'>'+docNames[i]+'</a>';}
+    h+='</div>';
+    tocEl.innerHTML=h;
+    tocEl.querySelectorAll('[data-goto]').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();switchTo(parseInt(this.getAttribute('data-goto')));});});
+  }
+
+  function switchTo(n){
+    activeDoc=n;
+    tabs.forEach(function(t){t.classList.remove('active');});
+    panels.forEach(function(p){p.classList.remove('active');});
+    document.querySelector('.tab[data-doc="'+n+'"]').classList.add('active');
+    document.getElementById('doc-'+n).classList.add('active');
+    renderToc(n);
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  tabs.forEach(function(t){t.addEventListener('click',function(){switchTo(parseInt(this.getAttribute('data-doc')));});});
+
+  document.addEventListener('click',function(e){
+    var a=e.target.closest('[data-goto]');
+    if(a&&a.getAttribute('data-goto')){e.preventDefault();switchTo(parseInt(a.getAttribute('data-goto')));}
+  });
+
+  window.addEventListener('scroll',function(){
+    var panel=document.getElementById('doc-'+activeDoc);
+    if(!panel)return;
+    var sections=panel.querySelectorAll('[id]');
+    var scrollY=window.scrollY+130;
+    var current=null;
+    sections.forEach(function(s){if(s.offsetTop<=scrollY)current=s.id;});
+    tocEl.querySelectorAll('.toc-item a').forEach(function(a){a.classList.toggle('active',a.getAttribute('href')==='#'+current);});
+  },{passive:true});
+
+  renderToc(1);
+})();
+</script>
+</body>
+</html>

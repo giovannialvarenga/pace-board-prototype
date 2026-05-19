@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PACE Board — Pilot Program</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Reset ────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:       #0A0A0A;
+      --white:       #FAFAFA;
+      --navy:        #1B2A4A;
+      --navy-dark:   #111827;
+      --teal:        #0EA5A0;
+      --amber:       #F59E0B;
+      --gray:        #6B7280;
+      --gray-light:  #9CA3AF;
+      --text-body:   #374151;
+
+      --ff-display:  'Playfair Display', Georgia, serif;
+      --ff-body:     'DM Sans', system-ui, sans-serif;
+      --ff-mono:     'JetBrains Mono', monospace;
+
+      --rule-dark:   rgba(255,255,255,0.07);
+      --rule-light:  rgba(0,0,0,0.08);
+
+      --pad-h: clamp(24px, 5vw, 80px);
+      --pad-v: clamp(80px, 10vw, 140px);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--ff-body);
+      background: var(--black);
+      color: var(--black);
+      font-size: 16px;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+      cursor: none;
+      overflow-x: hidden;
+    }
+
+    /* ── Film grain overlay ───────────────────────────────── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      background-size: 300px 300px;
+      opacity: 0.03;
+      pointer-events: none;
+      z-index: 9998;
+      mix-blend-mode: overlay;
+    }
+
+    /* ── Custom cursor ────────────────────────────────────── */
+    .cursor {
+      position: fixed;
+      width: 12px;
+      height: 12px;
+      background: var(--teal);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99999;
+      transform: translate(-50%, -50%);
+      transition: width 0.2s ease, height 0.2s ease, opacity 0.2s ease, background 0.2s ease;
+      mix-blend-mode: difference;
+    }
+    .cursor.expanded {
+      width: 44px;
+      height: 44px;
+      opacity: 0.45;
+    }
+    .cursor.on-light {
+      background: var(--teal);
+    }
+
+    /* ── Scroll progress ──────────────────────────────────── */
+    .scroll-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 2px;
+      background: var(--amber);
+      z-index: 99997;
+      width: 0%;
+      transition: width 0.08s linear;
+    }
+
+    /* ── Masthead ─────────────────────────────────────────── */
+    .masthead {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      height: 52px;
+      background: rgba(10,10,10,0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--rule-dark);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--pad-h);
+    }
+
+    .masthead__brand {
+      font-family: var(--ff-mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--white);
+      font-weight: 500;
+    }
+
+    .masthead__brand span { color: var(--teal); }
+
+    .masthead__center {
+      font-family: var(--ff-mono);
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.28);
+      display: none;
+    }
+
+    @media (min-width: 768px) { .masthead__center { display: block; } }
+
+    .masthead__status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .masthead__dot {
+      width: 7px;
+      height: 7px;
+      background: var(--amber);
+      border-radius: 50%;
+      animation: pulse 2.4s ease infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.4; transform: scale(0.75); }
+    }
+
+    .masthead__label {
+      font-family: var(--ff-mono);
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      color: rgba(255,255,255,0.3);
+      text-transform: uppercase;
+    }
+
+    /* ── Section: Hero ────────────────────────────────────── */
+    #hero {
+      background: var(--black);
+      min-height: 100svh;
+      padding-top: 52px;
+      display: grid;
+      grid-template-columns: 1fr;
+      grid-template-rows: 1fr auto;
+      position: relative;
+      overflow: hidden;
+    }
+
+    @media (min-width: 900px) {
+      #hero {
+        grid-template-columns: 55% 45%;
+        grid-template-rows: 1fr auto;
+      }
+    }
+
+    .hero-left {
+      grid-column: 1;
+      grid-row: 1;
+      padding: clamp(60px, 8vw, 100px) var(--pad-h);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-right {
+      grid-column: 1;
+      grid-row: 1;
+      position: relative;
+      overflow: hidden;
+      min-height: 0;
+      display: none;
+    }
+
+    @media (min-width: 900px) {
+      .hero-right {
+        display: block;
+        grid-column: 2;
+      }
+    }
+
+    /* Fade left edge of image into black background */
+    .hero-right::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to right, var(--black) 0%, rgba(10,10,10,0.3) 50%, transparent 100%);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Decorative frame lines */
+    .hero-right::after {
+      content: '';
+      position: absolute;
+      top: 40px; right: 40px; bottom: 40px; left: 0;
+      border: 1px solid rgba(255,255,255,0.06);
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .hero-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+      opacity: 0.8;
+    }
+
+    /* Amber corner accent */
+    .hero-corner {
+      position: absolute;
+      bottom: 40px;
+      right: 40px;
+      z-index: 3;
+      font-family: var(--ff-mono);
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.25);
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+    }
+
+    .hero-eyebrow {
+      font-family: var(--ff-mono);
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--teal);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 40px;
+    }
+
+    .hero-eyebrow::before {
+      content: '01';
+      font-size: 9px;
+      opacity: 0.4;
+      letter-spacing: 0.1em;
+    }
+
+    .hero-h1 {
+      font-family: var(--ff-display);
+      font-size: clamp(54px, 8vw, 116px);
+      font-weight: 900;
+      font-style: italic;
+      line-height: 0.92;
+      letter-spacing: -0.025em;
+      color: var(--white);
+      margin-bottom: 40px;
+    }
+
+    .hero-h1 em {
+      font-style: normal;
+      color: var(--teal);
+    }
+
+    .hero-sub {
+      font-family: var(--ff-body);
+      font-size: clamp(15px, 1.8vw, 18px);
+      font-weight: 300;
+      color: rgba(255,255,255,0.5);
+      max-width: 400px;
+      margin-bottom: 56px;
+      line-height: 1.7;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--amber);
+      color: var(--black);
+      font-family: var(--ff-mono);
+      font-weight: 500;
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      padding: 18px 28px;
+      border-radius: 0;
+      text-decoration: none;
+      border: none;
+      cursor: none;
+      transition: background 0.2s ease, transform 0.25s ease, letter-spacing 0.2s ease;
+      align-self: flex-start;
+    }
+
+    .btn-primary::after {
+      content: '→';
+      font-family: var(--ff-body);
+      font-size: 16px;
+      font-weight: 400;
+      transition: transform 0.2s ease;
+    }
+
+    .btn-primary:hover {
+      background: #D97706;
+      transform: translateX(6px);
+    }
+
+    .btn-primary:hover::after {
+      transform: translateX(4px);
+    }
+
+    /* Ticker bar */
+    .hero-ticker {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      height: 42px;
+      background: rgba(27,42,74,0.6);
+      backdrop-filter: blur(8px);
+      border-top: 1px solid var(--rule-dark);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+    }
+
+    .ticker-track {
+      display: flex;
+      white-space: nowrap;
+      animation: ticker 32s linear infinite;
+    }
+
+    .ticker-track:hover { animation-play-state: paused; }
+
+    .ticker-item {
+      font-family: var(--ff-mono);
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.32);
+      padding: 0 28px;
+    }
+
+    .ticker-item b {
+      color: var(--teal);
+      font-weight: 500;
+    }
+
+    .ticker-sep {
+      color: rgba(255,255,255,0.14);
+      padding: 0 8px;
+    }
+
+    @keyframes ticker {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* ── Hero animations ──────────────────────────────────── */
+    @keyframes heroIn {
+      from { opacity: 0; transform: translateY(22px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .ha { animation: heroIn 1s ease both; }
+    .ha-1 { animation-delay: 0.1s; }
+    .ha-2 { animation-delay: 0.28s; }
+    .ha-3 { animation-delay: 0.48s; }
+    .ha-4 { animation-delay: 0.72s; }
+
+    /* ── Shared: section number watermark ────────────────── */
+    .s-num {
+      font-family: var(--ff-display);
+      font-size: clamp(120px, 22vw, 280px);
+      font-weight: 900;
+      line-height: 1;
+      position: absolute;
+      top: clamp(16px, 3vw, 32px);
+      right: var(--pad-h);
+      letter-spacing: -0.05em;
+      pointer-events: none;
+      user-select: none;
+      color: transparent;
+    }
+
+    .s-num--dark  { -webkit-text-stroke: 1px rgba(255,255,255,0.045); }
+    .s-num--light { -webkit-text-stroke: 1px rgba(0,0,0,0.05); }
+
+    /* ── Shared: section label ────────────────────────────── */
+    .s-label {
+      font-family: var(--ff-mono);
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 48px;
+      padding-bottom: 20px;
+    }
+
+    .s-label::before {
+      content: attr(data-num);
+      opacity: 0.35;
+    }
+
+    .s-label--light {
+      color: var(--teal);
+      border-bottom: 1px solid var(--rule-light);
+    }
+
+    .s-label--dark {
+      color: var(--teal);
+      border-bottom: 1px solid var(--rule-dark);
+    }
+
+    /* ── Section: Problem ─────────────────────────────────── */
+    #problem {
+      background: var(--white);
+      padding: var(--pad-v) var(--pad-h);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .problem-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .pull-quote {
+      font-family: var(--ff-display);
+      font-size: clamp(26px, 4vw, 52px);
+      font-weight: 700;
+      font-style: italic;
+      line-height: 1.18;
+      letter-spacing: -0.015em;
+      color: var(--black);
+      margin-bottom: 64px;
+      padding-left: clamp(20px, 3vw, 36px);
+      border-left: 3px solid var(--teal);
+    }
+
+    .problem-cols {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+
+    @media (min-width: 700px) {
+      .problem-cols { grid-template-columns: 1fr 1fr; gap: 60px; }
+    }
+
+    .problem-col p {
+      font-size: 16.5px;
+      line-height: 1.78;
+      color: var(--text-body);
+    }
+
+    .problem-col p + p { margin-top: 20px; }
+    .problem-col strong { color: var(--black); font-weight: 600; }
+
+    /* ── Section: How it works ────────────────────────────── */
+    #how {
+      background: var(--black);
+      padding: var(--pad-v) var(--pad-h);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .how-inner {
+      max-width: 860px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .how-h2 {
+      font-family: var(--ff-display);
+      font-size: clamp(36px, 5.5vw, 72px);
+      font-weight: 900;
+      font-style: italic;
+      line-height: 1.0;
+      letter-spacing: -0.025em;
+      color: var(--white);
+      margin-bottom: 72px;
+    }
+
+    .chapter-list { display: flex; flex-direction: column; }
+
+    .chapter {
+      display: grid;
+      grid-template-columns: 72px 1fr;
+      gap: 32px;
+      padding: 36px 0;
+      border-top: 1px solid var(--rule-dark);
+      align-items: start;
+      transition: background 0.2s;
+    }
+
+    .chapter:last-child { border-bottom: 1px solid var(--rule-dark); }
+
+    .chapter__num {
+      font-family: var(--ff-display);
+      font-size: 48px;
+      font-weight: 900;
+      font-style: italic;
+      color: rgba(255,255,255,0.07);
+      line-height: 1;
+      padding-top: 4px;
+      transition: color 0.3s;
+    }
+
+    .chapter:hover .chapter__num { color: rgba(14,165,160,0.2); }
+
+    .chapter__label {
+      font-family: var(--ff-mono);
+      font-size: 9px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 8px;
+    }
+
+    .chapter__title {
+      font-family: var(--ff-display);
+      font-size: clamp(18px, 2.2vw, 26px);
+      font-weight: 700;
+      font-style: italic;
+      color: var(--white);
+      margin-bottom: 10px;
+      line-height: 1.2;
+    }
+
+    .chapter__desc {
+      font-size: 15px;
+      color: rgba(255,255,255,0.45);
+      line-height: 1.72;
+    }
+
+    /* ── Section: Artifacts ───────────────────────────────── */
+    #artifacts {
+      background: var(--white);
+      padding: var(--pad-v) var(--pad-h);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .artifacts-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .artifacts-h2 {
+      font-family: var(--ff-display);
+      font-size: clamp(36px, 5.5vw, 72px);
+      font-weight: 900;
+      font-style: italic;
+      line-height: 1.0;
+      letter-spacing: -0.025em;
+      color: var(--black);
+      margin-bottom: 72px;
+    }
+
+    .artifacts-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1px;
+      background: rgba(0,0,0,0.08);
+      border: 1px solid rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    @media (min-width: 660px) {
+      .artifacts-grid { grid-template-columns: 1fr 1fr; }
+      .artifact-card--wide { grid-column: span 2; }
+    }
+
+    @media (min-width: 1000px) {
+      .artifacts-grid { grid-template-columns: repeat(3, 1fr); }
+      .artifact-card--wide { grid-column: span 2; }
+    }
+
+    .artifact-card {
+      background: var(--white);
+      padding: 36px 30px;
+      transition: background 0.25s ease;
+      cursor: none;
+      position: relative;
+    }
+
+    .artifact-card::before {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 30px; right: 30px;
+      height: 2px;
+      background: var(--teal);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.35s ease;
+    }
+
+    .artifact-card:hover::before { transform: scaleX(1); }
+    .artifact-card:hover { background: #F9FAFB; }
+
+    .artifact-card__num {
+      font-family: var(--ff-mono);
+      font-size: 9px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--gray-light);
+      margin-bottom: 20px;
+      transition: color 0.2s;
+    }
+
+    .artifact-card:hover .artifact-card__num { color: var(--amber); }
+
+    .artifact-card__title {
+      font-family: var(--ff-display);
+      font-size: clamp(18px, 2vw, 22px);
+      font-weight: 700;
+      font-style: italic;
+      color: var(--black);
+      margin-bottom: 14px;
+      line-height: 1.25;
+    }
+
+    .artifact-card__body {
+      font-size: 14px;
+      color: var(--gray);
+      line-height: 1.72;
+    }
+
+    /* ── Section: Pilot ───────────────────────────────────── */
+    #pilot {
+      background: var(--navy-dark);
+      padding: var(--pad-v) var(--pad-h);
+      position: relative;
+      overflow: hidden;
+    }
+
+    #pilot::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 55% 65% at 85% 40%, rgba(14,165,160,0.05) 0%, transparent 65%),
+        radial-gradient(ellipse 30% 50% at 10% 90%, rgba(245,158,11,0.03) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .pilot-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 80px;
+      position: relative;
+      z-index: 1;
+    }
+
+    @media (min-width: 860px) {
+      .pilot-inner {
+        grid-template-columns: 1.3fr 0.7fr;
+        gap: 80px;
+        align-items: start;
+      }
+    }
+
+    .pilot-h2 {
+      font-family: var(--ff-display);
+      font-size: clamp(32px, 5vw, 60px);
+      font-weight: 900;
+      font-style: italic;
+      color: var(--white);
+      line-height: 1.02;
+      letter-spacing: -0.025em;
+      margin-bottom: 32px;
+    }
+
+    .pilot-body {
+      font-size: 16px;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.8;
+      margin-bottom: 44px;
+    }
+
+    .pilot-body p + p { margin-top: 18px; }
+
+    .prepare-label {
+      font-family: var(--ff-mono);
+      font-size: 9px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 18px;
+    }
+
+    .pilot-checklist {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .pilot-checklist li {
+      font-size: 15px;
+      color: rgba(255,255,255,0.6);
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .pilot-checklist li::before {
+      content: '—';
+      color: var(--teal);
+      flex-shrink: 0;
+      font-family: var(--ff-mono);
+      font-size: 11px;
+      margin-top: 2px;
+    }
+
+    .pilot-right {
+      padding-top: 0;
+    }
+
+    @media (min-width: 860px) {
+      .pilot-right {
+        border-left: 1px solid rgba(255,255,255,0.07);
+        padding-left: 60px;
+      }
+    }
+
+    .gets-label {
+      font-family: var(--ff-mono);
+      font-size: 9px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 24px;
+    }
+
+    .gets-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .gets-list li {
+      font-size: 15px;
+      color: rgba(255,255,255,0.7);
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 18px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .get-icon {
+      width: 18px;
+      height: 18px;
+      border: 1px solid rgba(14,165,160,0.5);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .get-icon svg { width: 9px; height: 9px; stroke: var(--teal); }
+
+    .pilot-cta {
+      margin-top: 44px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .pilot-limit {
+      font-family: var(--ff-mono);
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      color: rgba(255,255,255,0.22);
+      text-transform: uppercase;
+    }
+
+    /* ── Section: Built by ────────────────────────────────── */
+    #built-by {
+      background: var(--white);
+      padding: var(--pad-v) var(--pad-h);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .built-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 60px;
+      position: relative;
+      z-index: 1;
+    }
+
+    @media (min-width: 768px) {
+      .built-inner { grid-template-columns: 1fr 1fr; gap: 100px; align-items: start; }
+    }
+
+    .built-h2 {
+      font-family: var(--ff-display);
+      font-size: clamp(28px, 4vw, 48px);
+      font-weight: 900;
+      font-style: italic;
+      letter-spacing: -0.02em;
+      color: var(--black);
+      line-height: 1.1;
+      margin-bottom: 32px;
+    }
+
+    .built-body {
+      font-size: 16.5px;
+      color: var(--text-body);
+      line-height: 1.78;
+    }
+
+    .built-body p + p { margin-top: 20px; }
+    .built-body em { font-style: italic; color: var(--gray); }
+
+    .stats-col {
+      display: flex;
+      flex-direction: column;
+      border-top: 1px solid var(--rule-light);
+    }
+
+    .stat-row {
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 24px;
+      padding: 28px 0;
+      border-bottom: 1px solid var(--rule-light);
+      align-items: center;
+    }
+
+    .stat-row__num {
+      font-family: var(--ff-display);
+      font-size: 42px;
+      font-weight: 900;
+      font-style: italic;
+      color: var(--teal);
+      line-height: 1;
+    }
+
+    .stat-row__label {
+      font-size: 14px;
+      color: var(--gray);
+      line-height: 1.55;
+    }
+
+    /* ── Footer ───────────────────────────────────────────── */
+    footer {
+      background: var(--black);
+      border-top: 1px solid var(--rule-dark);
+      padding: clamp(36px, 4vw, 52px) var(--pad-h);
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    @media (min-width: 768px) {
+      footer { grid-template-columns: 1fr 1fr 1fr; align-items: center; }
+    }
+
+    .footer-brand {
+      font-family: var(--ff-display);
+      font-size: 16px;
+      font-style: italic;
+      font-weight: 700;
+      color: var(--white);
+    }
+
+    .footer-brand span { color: var(--teal); }
+
+    .footer-center { text-align: center; }
+
+    .footer-quote {
+      font-size: 12px;
+      font-style: italic;
+      color: rgba(255,255,255,0.18);
+      line-height: 1.65;
+    }
+
+    .footer-right {
+      text-align: right;
+    }
+
+    .footer-link {
+      font-family: var(--ff-mono);
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.28);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-link:hover { color: var(--teal); }
+
+    /* ── Scroll reveal ────────────────────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(26px);
+      transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    .reveal-delay-1 { transition-delay: 0.08s; }
+    .reveal-delay-2 { transition-delay: 0.16s; }
+    .reveal-delay-3 { transition-delay: 0.26s; }
+    .reveal-delay-4 { transition-delay: 0.36s; }
+    .reveal-delay-5 { transition-delay: 0.46s; }
+
+    /* ── Accessibility ────────────────────────────────────── */
+    .sr-only {
+      position: absolute; width: 1px; height: 1px;
+      padding: 0; margin: -1px; overflow: hidden;
+      clip: rect(0,0,0,0); border: 0;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .reveal, .ha { transition: none; animation: none; opacity: 1; transform: none; }
+      .ticker-track { animation: none; }
+      .cursor { display: none; }
+      body { cursor: auto; }
+      a, button { cursor: pointer; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Custom cursor -->
+<div class="cursor" id="cursor" aria-hidden="true"></div>
+
+<!-- Scroll progress bar -->
+<div class="scroll-progress" id="scrollProgress" aria-hidden="true" role="progressbar" aria-valuemin="0" aria-valuemax="100"></div>
+
+<!-- Masthead -->
+<header class="masthead">
+  <span class="masthead__brand">PACE <span>Board</span></span>
+  <span class="masthead__center">Pilot Program &mdash; 2026</span>
+  <div class="masthead__status">
+    <div class="masthead__dot" aria-hidden="true"></div>
+    <span class="masthead__label">3 spots open</span>
+  </div>
+</header>
+
+<!-- ══ Section 1: Hero ════════════════════════════════════════ -->
+<section id="hero">
+
+  <div class="hero-left">
+    <p class="hero-eyebrow ha">Pilot Program &mdash; PACE Board</p>
+    <h1 class="hero-h1 ha ha-1">
+      Your pocket<br>
+      <em>management</em><br>
+      board.
+    </h1>
+    <p class="hero-sub ha ha-2">
+      One session. A clear direction.<br>
+      An AI consultant that thinks in complexity, not templates.
+    </p>
+    <a href="mailto:giovannialvarenga@paceagile.com?subject=PACE Board Pilot — I'm interested"
+       class="btn-primary ha ha-3">
+      You're invited to test this
+    </a>
+  </div>
+
+  <div class="hero-right" aria-hidden="true">
+    <img
+      src="https://ai-statics.freepik.com/content/mg-upscaler/62uiyifxrrgl5ggp5pvg34ckoi/6e012203-8eb4-4b62-ae0d-7c6c0a8bdfcf_2133d30b-0ebf-4cb1-9eec-8aeb230875ad.png?token=exp=1779243896~hmac=ee98be3587a01384d035262a39ea3b07"
+      alt="Organizational complexity cartography"
+      class="hero-img"
+      loading="eager"
+    />
+    <span class="hero-corner">Complexity Cartography &mdash; PACE 2026</span>
+  </div>
+
+  <!-- Process ticker -->
+  <div class="hero-ticker" aria-hidden="true">
+    <div class="ticker-track">
+      <span class="ticker-item"><b>01</b> Discovery</span>
+      <span class="ticker-sep">·</span>
+      <span class="ticker-item"><b>02</b> Problem Framing</span>
+      <span class="ticker-sep">·</span>
+      <span class="ticker-item"><b>03</b> Business Map</span>
+      <span class="ticker-sep">·</span>
+      <span class="ticker-item"><b>04</b> Action Plan</span>
+      <span class="ticker-sep">·</span>
+      <span class="ticker-item"><b>05</b> AI Prompts</span>
+      <span class="ticker-sep">·</span>
+      <!-- Duplicate for seamless loop -->
+      <span class="ticker-item"><b>01</b> Discovery</span>
+      <span class="ticker-sep">·</span>
+      <span class="ticker-item"><b>02</b> Problem Framing</span>
+      <span class="ticker-sep">·</span>
+      <span class="ticker-item"><b>03</b> World Model</span>
+      <span class="ticker-sep">·</span>
+      <span class="ticker-item"><b>04</b> Movement Plan</span>
+      <span class="ticker-sep">·</span>
+      <span class="ticker-item"><b>05</b> Trial Prompts</span>
+      <span class="ticker-sep">·</span>
+    </div>
+  </div>
+
+</section>
+
+<!-- ══ Section 2: Problem ═════════════════════════════════════ -->
+<section id="problem">
+  <span class="s-num s-num--light" aria-hidden="true">02</span>
+  <div class="problem-inner">
+    <div class="s-label s-label--light reveal" data-num="02">Why this exists</div>
+
+    <blockquote class="pull-quote reveal reveal-delay-1">
+      &ldquo;Founders don&rsquo;t need a better business plan. They need a better thinking partner.&rdquo;
+    </blockquote>
+
+    <div class="problem-cols">
+      <div class="problem-col reveal reveal-delay-2">
+        <p>Most planning tools fill templates. They give you a document. PACE Board gives you a <strong>movement</strong> &mdash; a clear read of your reality, the assumptions you haven't questioned yet, and what to do in the next 14 days.</p>
+        <p>Not a document. A direction.</p>
+      </div>
+      <div class="problem-col reveal reveal-delay-3">
+        <p>The problem isn't that founders lack information. It's that they're too close to see what's actually true. They're solving the loudest problem, not the real one.</p>
+        <p>PACE Board surfaces what isn't being said. Then builds a plan around that.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ Section 3: How it works ═══════════════════════════════ -->
+<section id="how">
+  <span class="s-num s-num--dark" aria-hidden="true">03</span>
+  <div class="how-inner">
+    <div class="s-label s-label--dark reveal" data-num="03">The flow</div>
+    <h2 class="how-h2 reveal reveal-delay-1">Five steps.<br>One session.</h2>
+
+    <div class="chapter-list" role="list">
+
+      <div class="chapter reveal reveal-delay-1" role="listitem">
+        <div class="chapter__num" aria-hidden="true">01</div>
+        <div>
+          <p class="chapter__label">Discovery</p>
+          <h3 class="chapter__title">Listen for what&rsquo;s not being said.</h3>
+          <p class="chapter__desc">An AI consultant interviews you about your business, idea, or challenge. One question at a time. Listens for what&rsquo;s not being said.</p>
+        </div>
+      </div>
+
+      <div class="chapter reveal reveal-delay-2" role="listitem">
+        <div class="chapter__num" aria-hidden="true">02</div>
+        <div>
+          <p class="chapter__label">Upstream</p>
+          <h3 class="chapter__title">Surface the assumptions you&rsquo;re treating as facts.</h3>
+          <p class="chapter__desc">Before any plan, we surface the assumptions you&rsquo;re treating as facts, where the real leverage is, and what the actual bottleneck is &mdash; not the loudest one.</p>
+        </div>
+      </div>
+
+      <div class="chapter reveal reveal-delay-3" role="listitem">
+        <div class="chapter__num" aria-hidden="true">03</div>
+        <div>
+          <p class="chapter__label">Map</p>
+          <h3 class="chapter__title">A World Model and a Worldview.</h3>
+          <p class="chapter__desc">A World Model (5 layers of your reality) + a Worldview &mdash; how your company sees market, customer, and competition. Specific. Not generic.</p>
+        </div>
+      </div>
+
+      <div class="chapter reveal reveal-delay-4" role="listitem">
+        <div class="chapter__num" aria-hidden="true">04</div>
+        <div>
+          <p class="chapter__label">Movement Plan</p>
+          <h3 class="chapter__title">A decision document calibrated to your moment.</h3>
+          <p class="chapter__desc">A complete plan for your focus initiative. Not a template filled in. A decision document calibrated to your moment &mdash; with hypotheses marked [H] and facts marked [F].</p>
+        </div>
+      </div>
+
+      <div class="chapter reveal reveal-delay-5" role="listitem">
+        <div class="chapter__num" aria-hidden="true">05</div>
+        <div>
+          <p class="chapter__label">Trial Prompts</p>
+          <h3 class="chapter__title">Paste and go. Useful in under 15 minutes.</h3>
+          <p class="chapter__desc">3 structured prompts to use with any AI tool (Claude, ChatGPT). Paste and go. Useful in under 15 minutes.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══ Section 4: Artifacts ══════════════════════════════════ -->
+<section id="artifacts">
+  <span class="s-num s-num--light" aria-hidden="true">04</span>
+  <div class="artifacts-inner">
+    <div class="s-label s-label--light reveal" data-num="04">Your artifacts</div>
+    <h2 class="artifacts-h2 reveal reveal-delay-1">What leaves<br>the session.</h2>
+
+    <div class="artifacts-grid">
+
+      <div class="artifact-card reveal reveal-delay-1">
+        <p class="artifact-card__num">01 &mdash; Artifact</p>
+        <h3 class="artifact-card__title">Upstream Opinion</h3>
+        <p class="artifact-card__body">Your top 3 false assumptions, the systemic leverage point, the real bottleneck vs. the loudest urgency. With specific falsification tests.</p>
+      </div>
+
+      <div class="artifact-card reveal reveal-delay-2">
+        <p class="artifact-card__num">02 &mdash; Artifact</p>
+        <h3 class="artifact-card__title">World Model</h3>
+        <p class="artifact-card__body">5-layer map: external forces, your operational system, relational dynamics, how complex each priority area actually is, active tensions.</p>
+      </div>
+
+      <div class="artifact-card reveal reveal-delay-3">
+        <p class="artifact-card__num">03 &mdash; Artifact</p>
+        <h3 class="artifact-card__title">Worldview</h3>
+        <p class="artifact-card__body">A 1&ndash;2 page narrative: how your company sees market, customer, and competition. Your anti-strategy. Your decision principles.</p>
+      </div>
+
+      <div class="artifact-card reveal reveal-delay-4">
+        <p class="artifact-card__num">04 &mdash; Artifact</p>
+        <h3 class="artifact-card__title">Movement Plan</h3>
+        <p class="artifact-card__body">A complete plan for your focus initiative &mdash; Validation mode or Operational mode &mdash; calibrated to your track and context.</p>
+      </div>
+
+      <div class="artifact-card artifact-card--wide reveal reveal-delay-5">
+        <p class="artifact-card__num">05 &mdash; Artifact</p>
+        <h3 class="artifact-card__title">Trial Prompts</h3>
+        <p class="artifact-card__body">
+          3 AI-ready prompts: &nbsp;
+          1. Worldview Draft &nbsp;&middot;&nbsp;
+          2. Value Proposition &nbsp;&middot;&nbsp;
+          3. Customer Interview Script or a low-risk test you can run this week
+        </p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══ Section 5: Pilot ═══════════════════════════════════════ -->
+<section id="pilot">
+  <span class="s-num s-num--dark" aria-hidden="true">05</span>
+  <div class="pilot-inner">
+
+    <div>
+      <div class="s-label s-label--dark reveal" data-num="05">You&rsquo;re one of 3</div>
+      <h2 class="pilot-h2 reveal reveal-delay-1">Why we need you<br>to test this.</h2>
+      <div class="pilot-body reveal reveal-delay-2">
+        <p>PACE Board is a methodology we&rsquo;ve been encoding for months. We&rsquo;ve run it on ourselves. Now we need to run it on real businesses.</p>
+        <p>You were selected because you have a real challenge &mdash; something you&rsquo;re building, deciding, or trying to make move faster.</p>
+        <p>This is not a demo. This is a working session. You&rsquo;ll leave with real artifacts. We&rsquo;ll leave with real feedback.</p>
+      </div>
+
+      <div class="reveal reveal-delay-3">
+        <p class="prepare-label">What to prepare</p>
+        <ul class="pilot-checklist">
+          <li>Come with one real challenge: an idea, a decision, or a business you&rsquo;re trying to move forward.</li>
+          <li>40&ndash;50 minutes of focused time. No multitasking.</li>
+          <li>Open to being challenged on your assumptions.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="pilot-right">
+      <p class="gets-label reveal">What you get</p>
+      <ul class="gets-list">
+        <li class="reveal reveal-delay-1">
+          <span class="get-icon" aria-hidden="true">
+            <svg viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <polyline points="1.5,5 4,7.5 8.5,2.5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          Full session at no cost
+        </li>
+        <li class="reveal reveal-delay-2">
+          <span class="get-icon" aria-hidden="true">
+            <svg viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <polyline points="1.5,5 4,7.5 8.5,2.5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          All artifacts delivered within 24 hours
+        </li>
+        <li class="reveal reveal-delay-3">
+          <span class="get-icon" aria-hidden="true">
+            <svg viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <polyline points="1.5,5 4,7.5 8.5,2.5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          Direct input into what we build next
+        </li>
+      </ul>
+
+      <div class="pilot-cta reveal reveal-delay-4">
+        <a href="mailto:giovannialvarenga@paceagile.com?subject=PACE Board Pilot — I'm interested"
+           class="btn-primary">
+          I&rsquo;m interested &mdash; reply to Giovanni
+        </a>
+        <p class="pilot-limit">Limited to 3 pilot participants.</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══ Section 6: Built by ═══════════════════════════════════ -->
+<section id="built-by">
+  <span class="s-num s-num--light" aria-hidden="true">06</span>
+  <div class="built-inner">
+
+    <div class="reveal">
+      <div class="s-label s-label--light" data-num="06">Built by</div>
+      <h2 class="built-h2">PACE + a MediaMonks operator.</h2>
+      <div class="built-body">
+        <p>Giovanni Alvarenga leads PACE &mdash; a consultancy at the intersection of organizational complexity and real AI adoption. He&rsquo;s been applying Cynefin, systems thinking, and safe-to-fail experiments inside companies for 10+ years.</p>
+        <p>His co-founder Lucas brings more than 8 years of operational experience at MediaMonks &mdash; building technology teams, managing revenue, and scaling operations from 12 to 200+ people.</p>
+        <p><em>PACE Board is their first product together. The methodology is real. The agents are built. The session is ready.</em></p>
+        <p>Now we need 3 people willing to go first.</p>
+      </div>
+    </div>
+
+    <div class="stats-col reveal reveal-delay-2">
+      <div class="stat-row">
+        <span class="stat-row__num">10+</span>
+        <span class="stat-row__label">Years applying complexity frameworks inside organizations</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-row__num">200+</span>
+        <span class="stat-row__label">People operations scaled from a 12-person team at MediaMonks</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-row__num">5</span>
+        <span class="stat-row__label">Artifacts delivered within 24 hours of your session</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══ Footer ═════════════════════════════════════════════════ -->
+<footer>
+  <p class="footer-brand">PACE <span>Board</span></p>
+  <div class="footer-center">
+    <p class="footer-quote">&ldquo;The map is not the territory. This is a guide &mdash; reality is validated in the market.&rdquo;</p>
+  </div>
+  <div class="footer-right">
+    <a href="https://paceagile.com" class="footer-link" target="_blank" rel="noopener">paceagile.com</a>
+  </div>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ── Custom cursor ───────────────────────────────── */
+  var cursor = document.getElementById('cursor');
+  var mouseX = 0, mouseY = 0;
+
+  document.addEventListener('mousemove', function (e) {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    cursor.style.left = mouseX + 'px';
+    cursor.style.top  = mouseY + 'px';
+  });
+
+  document.addEventListener('mouseleave', function () {
+    cursor.style.opacity = '0';
+  });
+
+  document.addEventListener('mouseenter', function () {
+    cursor.style.opacity = '1';
+  });
+
+  var interactives = document.querySelectorAll('a, button');
+  interactives.forEach(function (el) {
+    el.addEventListener('mouseenter', function () { cursor.classList.add('expanded'); });
+    el.addEventListener('mouseleave', function () { cursor.classList.remove('expanded'); });
+  });
+
+  /* ── Scroll progress bar ─────────────────────────── */
+  var progressBar = document.getElementById('scrollProgress');
+  window.addEventListener('scroll', function () {
+    var scrolled = window.scrollY;
+    var total    = document.body.scrollHeight - window.innerHeight;
+    var pct      = total > 0 ? (scrolled / total) * 100 : 0;
+    progressBar.style.width = pct.toFixed(1) + '%';
+    progressBar.setAttribute('aria-valuenow', Math.round(pct));
+  }, { passive: true });
+
+  /* ── Scroll reveal ───────────────────────────────── */
+  var reveals = document.querySelectorAll('.reveal');
+
+  if ('IntersectionObserver' in window) {
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -48px 0px' });
+
+    reveals.forEach(function (el) { observer.observe(el); });
+
+    // Safety net: ensure content is never permanently hidden
+    setTimeout(function() {
+      reveals.forEach(function(el) { el.classList.add('visible'); });
+    }, 1500);
+  } else {
+    reveals.forEach(function (el) { el.classList.add('visible'); });
+  }
+
+  /* ── Masthead background on scroll ──────────────── */
+  var masthead = document.querySelector('.masthead');
+  window.addEventListener('scroll', function () {
+    if (window.scrollY > 20) {
+      masthead.style.borderBottomColor = 'rgba(255,255,255,0.1)';
+    } else {
+      masthead.style.borderBottomColor = 'rgba(255,255,255,0.07)';
+    }
+  }, { passive: true });
+
+})();
+</script>
+
+</body>
+</html>

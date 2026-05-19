@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<title>Meu negócio — Cozinha da Dora</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#F4F5F7;font-family:'DM Sans',sans-serif;color:#1F2937;-webkit-font-smoothing:antialiased;}
+
+.top-nav{
+  position:fixed;top:0;left:0;right:0;height:52px;
+  background:white;border-bottom:1px solid #E5E7EB;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;z-index:100;
+}
+.nav-back{
+  font-family:'JetBrains Mono',monospace;font-size:9px;color:#6B7280;
+  text-decoration:none;letter-spacing:0.04em;
+}
+.nav-back:hover{color:#374151;}
+.nav-center{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:#1F2937;}
+.nav-right{font-family:'JetBrains Mono',monospace;font-size:9px;color:#9CA3AF;letter-spacing:0.04em;}
+
+.content{
+  max-width:680px;margin:0 auto;
+  padding:32px 24px;
+  padding-top:calc(52px + 32px);
+}
+
+.page-heading{margin-bottom:24px;}
+.biz-name{
+  font-family:'Playfair Display',serif;font-style:italic;font-weight:900;
+  font-size:22px;color:#1B2A4A;line-height:1.2;
+}
+.biz-subtitle{
+  font-family:'DM Sans',sans-serif;font-size:14px;color:#6B7280;
+  margin-top:4px;
+}
+
+.session-list{display:flex;flex-direction:column;gap:12px;}
+
+.session-card{
+  background:white;border-radius:12px;
+  box-shadow:0 1px 3px rgba(0,0,0,0.06);
+  padding:20px 24px;
+}
+
+.session-row1{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+
+.session-badge{
+  font-family:'JetBrains Mono',monospace;font-size:9px;
+  background:#F3F4F6;color:#374151;
+  padding:3px 8px;border-radius:4px;
+  letter-spacing:0.04em;
+}
+.session-date{
+  font-family:'DM Sans',sans-serif;font-size:12px;color:#6B7280;
+}
+.status-pill{
+  font-family:'JetBrains Mono',monospace;font-size:8px;
+  background:#D1FAE5;color:#065F46;
+  padding:3px 8px;border-radius:10px;
+  letter-spacing:0.06em;text-transform:uppercase;
+}
+
+.session-count{
+  font-family:'DM Sans',sans-serif;font-size:13px;color:#374151;
+  margin-top:8px;
+}
+
+.session-tags{
+  display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;
+}
+.tag{
+  font-family:'JetBrains Mono',monospace;font-size:8px;color:#9CA3AF;
+  letter-spacing:0.03em;
+}
+.tag+.tag::before{content:'·';margin-right:6px;}
+
+.session-link{
+  display:block;margin-top:12px;
+  font-family:'DM Sans',sans-serif;font-size:13px;
+  font-weight:500;color:#0EA5A0;text-decoration:none;
+  transition:opacity 0.15s;
+}
+.session-link:hover{opacity:0.75;}
+
+.session-card.empty{
+  background:#FAFAFA;
+  border:1px dashed #E5E7EB;
+  box-shadow:none;
+}
+.empty-badge{
+  font-family:'JetBrains Mono',monospace;font-size:9px;color:#D1D5DB;
+  letter-spacing:0.04em;
+}
+.empty-status{
+  font-family:'DM Sans',sans-serif;font-size:12px;color:#D1D5DB;
+  margin-left:4px;
+}
+.empty-message{
+  font-family:'DM Sans',sans-serif;font-size:13px;color:#9CA3AF;
+  margin-top:8px;
+}
+.empty-link{
+  display:block;margin-top:8px;
+  font-family:'DM Sans',sans-serif;font-size:13px;
+  font-weight:500;color:#F59E0B;text-decoration:none;
+  transition:opacity 0.15s;
+}
+.empty-link:hover{opacity:0.75;}
+
+@media(max-width:420px){
+  .session-card{padding:16px 16px;}
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a class="nav-back" href="living-board.html">← Back to board</a>
+  <span class="nav-center">Meu negócio</span>
+  <span class="nav-right">2 sessions</span>
+</nav>
+
+<div class="content">
+
+  <div class="page-heading">
+    <div class="biz-name">Cozinha da Dora</div>
+    <div class="biz-subtitle">All your sessions and documents.</div>
+  </div>
+
+  <div class="session-list">
+
+    <div class="session-card">
+      <div class="session-row1">
+        <span class="session-badge">Session 2</span>
+        <span class="session-date">May 19, 2026</span>
+        <span class="status-pill">Complete</span>
+      </div>
+      <div class="session-count">5 documents generated</div>
+      <div class="session-tags">
+        <span class="tag">Problem Analysis</span>
+        <span class="tag">Business Map</span>
+        <span class="tag">Strategic Stance</span>
+        <span class="tag">Action Plan</span>
+        <span class="tag">AI Prompts</span>
+      </div>
+      <a class="session-link" href="artifacts.html">View documents →</a>
+    </div>
+
+    <div class="session-card">
+      <div class="session-row1">
+        <span class="session-badge">Session 1</span>
+        <span class="session-date">May 18, 2026</span>
+        <span class="status-pill">Complete</span>
+      </div>
+      <div class="session-count">5 documents generated</div>
+      <div class="session-tags">
+        <span class="tag">Problem Analysis</span>
+        <span class="tag">Business Map</span>
+        <span class="tag">Strategic Stance</span>
+        <span class="tag">Action Plan</span>
+        <span class="tag">AI Prompts</span>
+      </div>
+      <a class="session-link" href="artifacts.html">View documents →</a>
+    </div>
+
+    <div class="session-card empty">
+      <div class="session-row1">
+        <span class="empty-badge">Session 3</span>
+        <span class="empty-status">Not started</span>
+      </div>
+      <div class="empty-message">Ready when you are.</div>
+      <a class="empty-link" href="chat.html">Start session 3 →</a>
+    </div>
+
+  </div>
+
+</div>
+
+</body>
+</html>
